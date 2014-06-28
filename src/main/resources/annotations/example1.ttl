@@ -1,0 +1,25 @@
+@prefix ex: <http://example.org/> .
+@prefix foaf:   <http://xmlns.com/foaf/0.1/> .
+@prefix oa:   <http://www.w3.org/ns/oa#> .
+@prefix dc:   <http://purl.org/dc/elements/1.1/> .
+
+ex:Anno a oa:Annotation ;
+   oa:hasTarget <http://www.foaffy.org/gallery2/main.php?g2_itemId=11496> ;
+   oa:hasBody <http://en.wikipedia.org/wiki/Harry_Perry_%28musician%29> ;
+   oa:annotatedBy ex:Person1 ;
+   oa:annotatedAt "2012-02-12T15:02:14Z" ;
+   oa:serializedBy ex:Software1 ;
+   oa:serializedAt "2012-02-12T15:02:14Z"  .
+
+<http://www.foaffy.org/gallery2/main.php?g2_itemId=11496>
+   dc:format "text/html" .
+
+<http://en.wikipedia.org/wiki/Harry_Perry_%28musician%29>
+   dc:format "text/html" .
+
+ex:Person1 a foaf:Person ;
+   foaf:mbox "john.doe@example.org" ;
+   foaf:name "John Doe" .
+
+ex:Software1
+   foaf:name "ExAnnotator" .

@@ -1,0 +1,91 @@
+{
+    "@graph": [
+        {
+            "@id": "moz:mosaic1",
+            "dc:date": "2014-04-10T15:00:00Z",
+            "dc:title": "Sample Mosaic",
+            "@type": "moz:Mosaic",
+            "moz:contains": [
+                "moz:resource1",
+                "moz:resource2"
+            ]
+        },
+        {
+            "@id": "moz:resource1",
+            "mosaicsurl": "http://youtu.be/hRBhygKEdow",
+            "dc:format": "video/youtube",
+            "dc:title": "Resource 1",
+            "@type": "moz:Resource",
+            "moz:annotatedBy": [
+                "moz:annotation1",
+                "moz:annotation2"
+            ]
+        },
+        {
+            "@id": "moz:resource2",
+            "mosaicsurl": "http://youtu.be/hRBhygKEdow",
+            "dc:format": "video/youtube",
+            "dc:title": "Resource 2",
+            "@type": "moz:Resource"
+        },
+        {
+            "@id": "moz:annotation1",
+            "dc:title": "Discovering Javascript Object Notation",
+            "@type": "moz:Annotation",
+            "from": "http://youtu.be/hRBhygKEdow",
+            "from:Fragment": "t=40,42",
+            "to": "http://inkdroid.org/journal/2012/04/30/lessons-of-json/",
+            "to:Fragment": "xpath=//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),1,//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),235"
+        },
+        {
+            "@id": "moz:annotation2",
+            "@type": "moz:Annotation"
+        }
+    ],
+    "@context": {
+        "mosaicsurl": {
+            "@id": "http://highlatitud.es/mosaics/url",
+            "@type": "@id"
+        },
+        "format": {
+            "@id": "http://purl.org/dc/elements/1.1/format",
+            "@type": "@id"
+        },
+        "title": {
+            "@id": "http://purl.org/dc/elements/1.1/title",
+            "@type": "@id"
+        },
+        "mosaicsinMosaic": {
+            "@id": "http://highlatitud.es/mosaics/inMosaic",
+            "@type": "@id"
+        },
+        "toFragment": {
+            "@id": "http://www.w3.org/ns/oa#toFragment",
+            "@type": "@id"
+        },
+        "to": {
+            "@id": "http://www.w3.org/ns/oa#to",
+            "@type": "@id"
+        },
+        "fromFragment": {
+            "@id": "http://www.w3.org/ns/oa#fromFragment",
+            "@type": "@id"
+        },
+        "from": {
+            "@id": "http://www.w3.org/ns/oa#from",
+            "@type": "@id"
+        },
+        "date": {
+            "@id": "http://purl.org/dc/elements/1.1/date",
+            "@type": "@id"
+        },
+        "dc": "http://purl.org/dc/elements/1.1/",
+        "moz": "http://highlatitud.es/mosaics/",
+        "moz:contains": {
+            "@type": "@id"
+        },
+        "moz:annotatedBy": {
+            "@type": "@id"
+        }
+    }
+}

@@ -1,0 +1,22 @@
+@prefix moz: <http://highlatitud.es/mosaics> .
+@prefix oa:   <http://www.w3.org/ns/oa#> .
+@prefix dc:   <http://purl.org/dc/elements/1.1/> .
+
+# see http://www.openannotation.org/spec/core/examples.html for open annotations examples
+
+moz:mosaic1 a moz:Mosaic ;
+   dc:title "Sample Mosaic" ;
+   dc:date "2014-04-10T15:00:00Z" .
+
+moz:resource1 a moz:Resource ;
+   moz:inMosaic moz:mosaic1 ;
+   dc:title "Resource 1";
+   dc:format "video/youtube" ;               # optional ; can be derived from url
+   moz:url <http://youtu.be/hRBhygKEdow> .
+
+moz:annotation1 a oa:Annotation ;
+   dc:title "Discovering Javascript Object Notation" ;
+   oa:from <http://youtu.be/hRBhygKEdow> ;
+   oa:fromFragment "t=40,42" ;
+   oa:to <http://inkdroid.org/journal/2012/04/30/lessons-of-json/> ;
+   oa:toFragment "xpath=//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),1,//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),235" .

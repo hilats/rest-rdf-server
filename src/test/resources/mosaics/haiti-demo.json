@@ -1,0 +1,46 @@
+{
+    "name": "Haiti Demo",
+
+    "content" : [
+        {
+            "name": "Haiti: Disaster To Development",
+            "src": "http://youtu.be/hRBhygKEdow",
+            "annotations": [
+                {"src":"#t=40,42",
+                    "target":"http://inkdroid.org/journal/2012/04/30/lessons-of-json/#xpath=//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),1,//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),235",
+                    "name": "Discovering Javascript Object Notation",
+                    "type": "chapter"}
+            ]
+        },
+
+        {
+            "name": "Time article: Aftershock",
+            "src": "http://content.time.com/time/specials/packages/article/0,28804,1953379_1953494_1955284-1,00.html",
+            "annotations": [
+                {
+                    "src":"#xpath=//ARTICLE[@id='article-12345']/DIV[2]/DIV/DIV/P[3]/text(),788,//ARTICLE[@id='article-12345']/DIV[2]/DIV/DIV/P[3]/text(),895",
+                    "name": "Quake repeats",
+                    "target": "http://comcat.cr.usgs.gov/earthquakes/feed/search.php?maxEventLatitude=19&minEventLatitude=17&minEventLongitude=-73&maxEventLongitude=-71&minEventTime=1262217600000&maxEventTime=1264809600000&minEventMagnitude=-1.0&maxEventMagnitude=10&minEventDepth=0.0&maxEventDepth=800.0&format=csv",
+                    "targetMimetype": "application/csv",
+                    "targetOptions": {
+                        "timeCol": 0,
+                        "hasHeaders": true,
+                        "timeFormat": "%Y",
+                        "skipRows": "1"
+                    }
+                },
+                {
+                    "src":"#xpath=//ARTICLE[@id='article-12345']/DIV[2]/DIV/DIV/P[3]/text(),28,//ARTICLE[@id='article-12345']/DIV[2]/DIV/DIV/P[3]/text(),116",
+                    "name": "Seismic area",
+                    "target": "http://apollopro.erdas.com/erdas-apollo/vector/USGS_SHAKEMAP#bbox=-75.4332,15.626967,-69.516533,21.293633",
+                    "targetMimetype": "application/vnd.ogc.wms_xml"
+
+                }
+
+            ]
+        }
+
+    ]
+
+
+}
