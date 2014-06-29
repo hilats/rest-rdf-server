@@ -1,5 +1,7 @@
 package com.hilats.server;
 
+import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -18,6 +20,15 @@ public abstract class RdfApplication
     protected RdfApplication() {
         this.packages(RdfApplication.class.getPackage().getName()+".rest.resources");
         this.register(ExceptionHandler.class);
+        //this.register(DBConnectionFilter.class);
+        register(new AbstractBinder() {
+            @Override
+            protected void configure() {
+                bindFactory(RepoConnectionHk2Factory.class)
+                        .to(RepoConnection.class)
+                        .in(RequestScoped.class); // necessary to have the .dispose() method called
+            }
+        });
     }
 
     @Override
@@ -28,4 +39,6 @@ public abstract class RdfApplication
     public abstract void addStatements(InputStream in, String mimeType);
 
     public abstract StreamingOutput getStatements(String sparql, String mimeType);
+
+    public abstract RepoConnectionFactory getRepoConnectionFactory();
 }

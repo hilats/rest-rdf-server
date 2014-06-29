@@ -10,6 +10,7 @@ import com.hilats.server.Main;
 import org.glassfish.grizzly.http.server.HttpServer;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
@@ -41,7 +42,7 @@ public class RdfResourceTest extends AbstractResourceTest
         Entity content = Entity.entity(this.getClass().getResourceAsStream("/annotations/example1.ttl"), "text/turtle") ;
         //Entity content = Entity.entity("test", "text/turtle") ;
         Response putResponse = target.path("myresource.ttl").request().put(content);
-
+        Assert.assertTrue("Wrong HTTP status message : "+putResponse.getStatus(), putResponse.getStatus()/100 == 2);
         String getResponse = target.path("myresource.jsonld").request().get(String.class);
         System.out.print(getResponse);
     }

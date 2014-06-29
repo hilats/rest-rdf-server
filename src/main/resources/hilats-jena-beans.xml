@@ -8,6 +8,7 @@
   http://www.springframework.org/schema/context/spring-context.xsd"
         >
 
-    <import resource="hilats-sesame-beans.xml"/>
+    <bean name="jenaRdfApplication" class="com.hilats.server.jena.JenaRdfApplication">
+    </bean>
 
 </beans>

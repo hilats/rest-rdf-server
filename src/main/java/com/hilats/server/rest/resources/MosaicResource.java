@@ -4,14 +4,13 @@ import com.hilats.server.RdfApplication;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * Root resource (exposed at "myresource" path)
  */
-@Path("myresource")
-public class RdfResource
+@Path("mosaics")
+public class MosaicResource
     extends AbstractResource
 {
 
@@ -20,14 +19,6 @@ public class RdfResource
     public void putJsonLd(InputStream jsonld) {
 
         getApplication().addStatements(jsonld, "application/ld+json");
-
-    }
-
-    @PUT
-    @Consumes({"text/turtle"})
-    public void putTurtle(InputStream turtle) {
-
-        getApplication().addStatements(turtle, "text/turtle");
 
     }
 

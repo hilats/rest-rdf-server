@@ -23,13 +23,33 @@ public class Main {
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "http://localhost:8080/myapp/";
 
+
+    public static HttpServer startSesameServer() {
+
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("hilats-sesame-beans.xml", "jersey-spring-applicationContext.xml");
+
+        return startServer(ctx);
+    }
+
+    public static HttpServer startJenaServer() {
+
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("hilats-jena-beans.xml", "jersey-spring-applicationContext.xml");
+
+        return startServer(ctx);
+    }
+
+    public static HttpServer startServer() {
+
+        ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml", "jersey-spring-applicationContext.xml");
+
+        return startServer(ctx);
+    }
+
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
      */
-    public static HttpServer startServer() {
-
-        ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml", "jersey-spring-applicationContext.xml");
+    public static HttpServer startServer(ApplicationContext ctx) {
 
         //final JenaRdfApplication app = new JenaRdfApplication();
         //final SesameRdfApplication app = new SesameRdfApplication();

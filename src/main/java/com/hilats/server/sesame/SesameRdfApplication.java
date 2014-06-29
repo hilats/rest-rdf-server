@@ -1,6 +1,7 @@
 package com.hilats.server.sesame;
 
 import com.hilats.server.RdfApplication;
+import com.hilats.server.RepoConnectionFactory;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryLanguage;
 import org.openrdf.repository.Repository;
@@ -10,6 +11,7 @@ import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
@@ -27,33 +29,28 @@ public class SesameRdfApplication
 
     public static String DEFAULT_SPARQL_QUERY = "CONSTRUCT {?s ?p ?o } WHERE {?s ?p ?o }";
 
-    Repository repo;
+    SesameConnectionFactory connFactory;
 
-    public SesameRdfApplication(Repository repo) throws RepositoryException {
-        this.repo = repo;
+    public SesameRdfApplication(SesameConnectionFactory connFactory) throws RepositoryException {
 
-        repo.initialize();
+        this.connFactory = connFactory;
+
+        connFactory.getRepository().initialize();
     }
 
     public void initWithData() throws RepositoryException, IOException, RDFParseException {
-        RepositoryConnection con = repo.getConnection();
-        try {
-            con.add(this.getClass().getResourceAsStream("/annotations/example1.turtle"), null, RDFFormat.TURTLE);
-        }
-        finally {
-            con.close();
-        }
+        RepositoryConnection con = (RepositoryConnection)connFactory.getCurrentConnection().getOriginalConnection();
+        con.add(this.getClass().getResourceAsStream("/annotations/example1.turtle"), null, RDFFormat.TURTLE);
     }
 
-    public Repository getRepo() {
-        return repo;
-    }
 
     @Override
     public void addStatements(InputStream in, String mimeType) {
+        RepositoryConnection con = (RepositoryConnection)connFactory.getCurrentConnection().getOriginalConnection();
         try {
             // use "http://localhost/test" for turtle ?
-            repo.getConnection().add(in, null, RDFFormat.forMIMEType(mimeType));
+            con.add(in, "http://localhost/test", RDFFormat.forMIMEType(mimeType));
+            con.commit();
         } catch (Exception e) {
             throw new RuntimeException("Failed to insert RDF stream", e);
         }
@@ -67,9 +64,8 @@ public class SesameRdfApplication
 
 
     public GraphQueryResult getGraph(String queryString) {
-        RepositoryConnection con = null;
+        RepositoryConnection con = (RepositoryConnection)connFactory.getCurrentConnection().getOriginalConnection();
         try {
-            con = repo.getConnection();
 
             GraphQueryResult graphResult = con.prepareGraphQuery(
                     QueryLanguage.SPARQL, queryString).evaluate();
@@ -77,8 +73,11 @@ public class SesameRdfApplication
             return graphResult;
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            if (con != null) try {con.close();} catch (RepositoryException e) {log.warn("Failed to close connection", e);}
         }
+    }
+
+    @Override
+    public RepoConnectionFactory getRepoConnectionFactory() {
+        return connFactory;
     }
 }
