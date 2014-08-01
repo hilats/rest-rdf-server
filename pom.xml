@@ -39,6 +39,11 @@
         </dependency>
 
         <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.glassfish.jersey.ext</groupId>
             <artifactId>jersey-spring3</artifactId>
         </dependency>
@@ -46,14 +51,16 @@
         <dependency>
             <groupId>com.github.jsonld-java</groupId>
             <artifactId>jsonld-java-sesame</artifactId>
-            <version>0.5-SNAPSHOT</version>
+            <version>0.5.1-SNAPSHOT</version>
         </dependency>
 
+        <!--
         <dependency>
             <groupId>com.github.jsonld-java</groupId>
             <artifactId>jsonld-java-jena</artifactId>
             <version>0.5-SNAPSHOT</version>
         </dependency>
+        -->
 
 
         <!-- uncomment this to get JSON support:
@@ -131,20 +138,25 @@
                     <target>1.6</target>
                 </configuration>
             </plugin>
+
             <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
                 <executions>
                     <execution>
+                        <id>test-jar</id>
                         <goals>
-                            <goal>java</goal>
+                            <goal>test-jar</goal>
                         </goals>
+                        <configuration>
+                            <!--
+                            <excludes>
+                                <exclude>hibernate.properties</exclude>
+                            </excludes>
+                            -->
+                        </configuration>
                     </execution>
                 </executions>
-                <configuration>
-                    <mainClass>com.example.Main</mainClass>
-                </configuration>
             </plugin>
         </plugins>
     </build>

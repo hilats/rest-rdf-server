@@ -1,6 +1,7 @@
 package com.hilats.server;
 
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
+import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.springframework.beans.BeansException;
@@ -9,17 +10,25 @@ import org.springframework.context.ApplicationContextAware;
 
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by pduchesne on 2/05/14.
  */
-public abstract class RdfApplication
+public class RdfApplication
     extends ResourceConfig
     implements ApplicationContextAware
 {
-    protected RdfApplication() {
+    TripleStore store;
+
+    protected RdfApplication(TripleStore store, Object... components) {
+        this.store = store;
+
+        for (Object component: components) register(component);
         this.packages(RdfApplication.class.getPackage().getName()+".rest.resources");
         this.register(ExceptionHandler.class);
+        register(JacksonFeature.class);
         //this.register(DBConnectionFilter.class);
         register(new AbstractBinder() {
             @Override
@@ -36,9 +45,7 @@ public abstract class RdfApplication
         property("contextConfig", applicationContext); // this is the value of SpringComponentProvider.PARAM_SPRING_CONTEXT , but this is private
     }
 
-    public abstract void addStatements(InputStream in, String mimeType);
-
-    public abstract StreamingOutput getStatements(String sparql, String mimeType);
-
-    public abstract RepoConnectionFactory getRepoConnectionFactory();
+    public TripleStore getStore() {
+        return store;
+    }
 }

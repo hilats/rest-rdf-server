@@ -18,8 +18,7 @@
         <constructor-arg ref="sesameRepo"/>
     </bean>
 
-    <bean name="sesameRdfApplication" class="com.hilats.server.sesame.SesameRdfApplication">
+    <bean name="tripleStore" class="com.hilats.server.sesame.SesameTripleStore">
         <constructor-arg ref="sesameConnFactory"/>
     </bean>
-
 </beans>

@@ -1,5 +1,6 @@
 package com.hilats.server.sesame;
 
+import com.github.jsonldjava.sesame.SesameJSONLDSettings;
 import com.github.jsonldjava.sesame.SesameJSONLDWriter;
 import org.openrdf.model.Statement;
 import org.openrdf.query.GraphQueryResult;
@@ -49,16 +50,17 @@ public class SesameStreamingOutput
         };
     }
 
-    public static StreamingOutput createStreamer(final GraphQueryResult graphResult, final RDFFormat format) {
+    public static StreamingOutput createStreamer(final GraphQueryResult graphResult, final RDFFormat format, final Map config) {
         return new StreamingOutput() {
             @Override
             public void write(OutputStream output) {
                 try {
-                    Map context = new HashMap();
 
                     RDFWriter rdfWriter = Rio.createWriter(format, output);
-                    rdfWriter.getWriterConfig().set(JSONLDSettings.JSONLD_MODE, JSONLDMode.COMPACT);
-                    rdfWriter.getWriterConfig().set(SesameJSONLDWriter.CONTEXT, context);
+                    rdfWriter.getWriterConfig().set(JSONLDSettings.JSONLD_MODE, config != null && config.containsKey(JSONLDSettings.JSONLD_MODE) ? (JSONLDMode)config.get(JSONLDSettings.JSONLD_MODE) : JSONLDMode.COMPACT);
+                    rdfWriter.getWriterConfig().set(SesameJSONLDSettings.CONTEXT, config != null && config.containsKey(SesameJSONLDSettings.CONTEXT) ? (Map)config.get(SesameJSONLDSettings.CONTEXT) : null);
+                    rdfWriter.getWriterConfig().set(SesameJSONLDSettings.FRAME, config != null && config.containsKey(SesameJSONLDSettings.FRAME) ? (Map)config.get(SesameJSONLDSettings.FRAME) : null);
+
                     QueryResults.report(graphResult, rdfWriter);
 
                 } catch (Exception e) {

@@ -1,9 +1,8 @@
 package com.hilats.server.jena;
 
-import com.github.jsonldjava.jena.JenaJSONLD;
-import com.hilats.server.ExceptionHandler;
 import com.hilats.server.RdfApplication;
 import com.hilats.server.RepoConnectionFactory;
+import com.hilats.server.TripleStore;
 import com.hp.hpl.jena.query.Query;
 import com.hp.hpl.jena.query.QueryExecution;
 import com.hp.hpl.jena.query.QueryExecutionFactory;
@@ -15,22 +14,23 @@ import org.apache.jena.riot.RDFLanguages;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
+import java.util.Map;
 
 /**
  * Created by pduchesne on 24/04/14.
  */
-public class JenaRdfApplication
-    extends RdfApplication
+public class JenaTripleStore
+    implements TripleStore
 {
     Model model;
 
-    public JenaRdfApplication() {
-        super();
+    public JenaTripleStore() {
 
         model = ModelFactory.createDefaultModel();
         model.read(this.getClass().getResourceAsStream("/annotations/example1.ttl"), null, "TURTLE");
 
-        JenaJSONLD.init();
+        //JenaJSONLD.init(); //TODO
     }
 
     public Model getModel() {
@@ -43,16 +43,26 @@ public class JenaRdfApplication
     }
 
     @Override
-    public StreamingOutput getStatements(String sparql, final String mimeType) {
-        final Model result = sparql != null ?
-                getTupleSet(sparql) :
-                model;
+    public void addStatements(Collection statements) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
+    public StreamingOutput getStatementsStreamer(String sparql, final String mimeType, Map config) {
+        final Model result = getStatements(sparql);
 
         return new StreamingOutput() {
             public void write(OutputStream output) {
                 result.write(output, RDFLanguages.contentTypeToLang(mimeType).getName());
             }
         };
+    }
+
+    @Override
+    public Model getStatements(String sparql) {
+        return sparql != null ?
+                getTupleSet(sparql) :
+                model;
     }
 
     public Model getTupleSet(String queryString) {
@@ -68,26 +78,4 @@ public class JenaRdfApplication
         //TODO
         return null;
     }
-
-    /*
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getJsonLd() throws RDFHandlerException {
-
-        Repository repo = new SailRepository( new MemoryStore(dataDir) );
-        repo.initialize();
-
-        Iterable<Statement> statements = ;
-
-        StreamingOutput stream = new StreamingOutput() {
-            @Override
-            public void write(OutputStream os) {
-                Rio.write(statements, os, RDFFormat.JSONLD);
-            }
-        };
-        return Response.ok(stream).build();
-
-        return  Response.ok(stream, RDFFormat.JSONLD.getDefaultMIMEType()).build();
-    }
-    */
 }

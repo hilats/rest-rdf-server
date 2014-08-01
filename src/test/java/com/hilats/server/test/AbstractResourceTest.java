@@ -1,6 +1,7 @@
 package com.hilats.server.test;
 
 import com.hilats.server.Main;
+import junit.framework.Assert;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.After;
 import org.junit.Before;
@@ -8,7 +9,9 @@ import org.junit.Test;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Response;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,6 +39,27 @@ public abstract class AbstractResourceTest {
     @After
     public void tearDown() throws Exception {
         server.stop();
+    }
+
+    public Response putWithSuccess(String path, Entity content) {
+        Response putResponse = target.path(path).request().put(content);
+        org.junit.Assert.assertEquals("Wrong HTTP status message : " + putResponse.getStatus() + "\n" + putResponse.getStatusInfo().getReasonPhrase(), Response.Status.Family.SUCCESSFUL, putResponse.getStatusInfo().getFamily());
+
+        return putResponse;
+    }
+
+    public Response getWithSuccess(String path) {
+        Response getResponse = target.path(path).request().get();
+        org.junit.Assert.assertEquals("Wrong HTTP status message : " + getResponse.getStatus() + "\n" + getResponse.getStatusInfo().getReasonPhrase(), Response.Status.Family.SUCCESSFUL, getResponse.getStatusInfo().getFamily());
+
+        return getResponse;
+    }
+
+    public Response getWithStatus(String path, int status) {
+        Response getResponse = target.path(path).request().get();
+        org.junit.Assert.assertEquals("Wrong HTTP status message : " + getResponse.getStatus(), status, getResponse.getStatus());
+
+        return getResponse;
     }
 
 }

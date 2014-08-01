@@ -10,4 +10,9 @@
 
     <import resource="hilats-sesame-beans.xml"/>
 
+    <bean name="rdfApplication" class="com.hilats.server.RdfApplication">
+        <constructor-arg ref="tripleStore"/>
+        <constructor-arg><list></list></constructor-arg>
+    </bean>
+
 </beans>

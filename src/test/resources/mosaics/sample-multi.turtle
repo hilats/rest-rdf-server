@@ -5,6 +5,7 @@
 # see http://www.openannotation.org/spec/core/examples.html for open annotations examples
 
 moz:mosaic1 a moz:Mosaic ;
+   moz:iid "abcd" ;
    dc:title "Sample Mosaic" ;
    dc:date "2014-04-10T15:00:00Z" .
 
@@ -20,3 +21,15 @@ moz:annotation1 a oa:Annotation ;
    oa:fromFragment "t=40,42" ;
    oa:to <http://inkdroid.org/journal/2012/04/30/lessons-of-json/> ;
    oa:toFragment "xpath=//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),1,//ARTICLE[@id='post-4438']/DIV/BLOCKQUOTE/P/text(),235" .
+
+moz:mosaic2 a moz:Mosaic ;
+   dc:title "Sample Mosaic 2" ;
+   dc:date "2014-04-10T15:00:00Z" .
+
+moz:resource2 a moz:Resource ;
+   moz:inMosaic moz:mosaic2 ;
+   dc:title "Resource 2".
+
+moz:mosaic3 a moz:Mosaic ;
+   dc:title "Sample Mosaic 3 - Empty" ;
+   dc:date "2014-04-10T15:00:00Z" .

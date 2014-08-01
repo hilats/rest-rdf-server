@@ -1,10 +1,7 @@
 package com.hilats.server.rest.resources;
 
-import com.hilats.server.RdfApplication;
-
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import java.io.IOException;
 import java.io.InputStream;
 
 /**
@@ -19,7 +16,7 @@ public class RdfResource
     @Consumes({"application/ld+json", MediaType.APPLICATION_JSON})
     public void putJsonLd(InputStream jsonld) {
 
-        getApplication().addStatements(jsonld, "application/ld+json");
+        getApplication().getStore().addStatements(jsonld, "application/ld+json");
 
     }
 
@@ -27,7 +24,7 @@ public class RdfResource
     @Consumes({"text/turtle"})
     public void putTurtle(InputStream turtle) {
 
-        getApplication().addStatements(turtle, "text/turtle");
+        getApplication().getStore().addStatements(turtle, "text/turtle");
 
     }
 
@@ -36,7 +33,7 @@ public class RdfResource
     @Produces({"application/ld+json", MediaType.APPLICATION_JSON})
     public StreamingOutput getJsonLd(@QueryParam("sparql") String sparql) {
 
-        return getApplication().getStatements(sparql, "application/ld+json");
+        return getApplication().getStore().getStatementsStreamer(sparql, "application/ld+json", null);
 
     }
 
@@ -45,7 +42,7 @@ public class RdfResource
     @Produces({ "application/rdf+xml", MediaType.APPLICATION_XML })
     public StreamingOutput getData(@QueryParam("sparql") String sparql) {
 
-        return getApplication().getStatements(sparql, "application/rdf+xml");
+        return getApplication().getStore().getStatementsStreamer(sparql, "application/rdf+xml", null);
     }
 
 }

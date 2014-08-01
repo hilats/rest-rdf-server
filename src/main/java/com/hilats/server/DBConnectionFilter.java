@@ -21,7 +21,7 @@ public class DBConnectionFilter
     @Override
     public void filter(ContainerRequestContext requestContext) throws IOException {
 
-        RepoConnectionFactory connFac = app.getRepoConnectionFactory();
+        RepoConnectionFactory connFac = app.getStore().getRepoConnectionFactory();
         if (connFac != null && !connFac.isConnectionActive()) {
             connFac.getCurrentConnection();
         }
@@ -30,7 +30,7 @@ public class DBConnectionFilter
     @Override
     public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException {
 
-        RepoConnectionFactory connFac = app.getRepoConnectionFactory();
+        RepoConnectionFactory connFac = app.getStore().getRepoConnectionFactory();
         if (connFac != null) {
             connFac.closeCurrentConnection();
         }

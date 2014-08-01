@@ -1,12 +1,9 @@
 package com.hilats.server;
 
-import com.hilats.server.jena.JenaRdfApplication;
-import com.hilats.server.sesame.SesameRdfApplication;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
-import org.glassfish.jersey.server.spring.SpringComponentProvider;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -23,20 +20,6 @@ public class Main {
     // Base URI the Grizzly HTTP server will listen on
     public static final String BASE_URI = "http://localhost:8080/myapp/";
 
-
-    public static HttpServer startSesameServer() {
-
-        ApplicationContext ctx = new ClassPathXmlApplicationContext("hilats-sesame-beans.xml", "jersey-spring-applicationContext.xml");
-
-        return startServer(ctx);
-    }
-
-    public static HttpServer startJenaServer() {
-
-        ApplicationContext ctx = new ClassPathXmlApplicationContext("hilats-jena-beans.xml", "jersey-spring-applicationContext.xml");
-
-        return startServer(ctx);
-    }
 
     public static HttpServer startServer() {
 
