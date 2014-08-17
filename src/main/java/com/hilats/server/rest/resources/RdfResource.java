@@ -5,9 +5,9 @@ import javax.ws.rs.core.*;
 import java.io.InputStream;
 
 /**
- * Root resource (exposed at "myresource" path)
+ * SPARQL query resource
  */
-@Path("myresource")
+@Path("query")
 public class RdfResource
     extends AbstractResource
 {
@@ -43,6 +43,13 @@ public class RdfResource
     public StreamingOutput getData(@QueryParam("sparql") String sparql) {
 
         return getApplication().getStore().getStatementsStreamer(sparql, "application/rdf+xml", null);
+    }
+
+    @GET
+    @Produces({ "text/turtle" })
+    public StreamingOutput getTurtle(@QueryParam("sparql") String sparql) {
+
+        return getApplication().getStore().getStatementsStreamer(sparql, "text/turtle", null);
     }
 
 }

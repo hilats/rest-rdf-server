@@ -8,7 +8,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.StreamingOutput;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.Map;
@@ -38,6 +42,11 @@ public class RdfApplication
                         .in(RequestScoped.class); // necessary to have the .dispose() method called
             }
         });
+    }
+
+    protected RdfApplication(TripleStore store, File initData, String mimeType, Object... components) throws FileNotFoundException {
+        this (store, components);
+        store.addStatements(new FileInputStream(initData), mimeType);
     }
 
     @Override

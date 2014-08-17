@@ -43,15 +43,17 @@ public class JSONStatementsReaderWriter
 
     @Override
     public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-        return type != null
-            && Model.class.isAssignableFrom(type)
-            && supportedTypes.contains(mediaType);
+        if (type != null
+            && Model.class.isAssignableFrom(type))
+            for (MediaType st : supportedTypes) if (st.isCompatible(mediaType)) return true;
+
+        return false;
     }
 
     @Override
     public Model readFrom(Class<Model> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
         try {
-            if (MediaType.APPLICATION_JSON_TYPE.equals(mediaType)) {
+            if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
 
                 ContextStatementCollector collector = new ContextStatementCollector(null);
                 final SesameTripleCallback callback = new SesameTripleCallback(collector);
@@ -65,7 +67,7 @@ public class JSONStatementsReaderWriter
                 JsonLdProcessor.toRDF(flattened, callback, options);
 
                 return new LinkedHashModel(collector.getStatements());
-            } else if (JSONLD.equals(mediaType)) {
+            } else if (JSONLD.isCompatible(mediaType)) {
                 ContextStatementCollector collector = new ContextStatementCollector(null);
                 final SesameTripleCallback callback = new SesameTripleCallback(collector);
                 final JsonLdOptions options = new JsonLdOptions("http://localhost/test");

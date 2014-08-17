@@ -11,20 +11,20 @@ public class RdfResourceTest extends AbstractResourceTest
 
     @Test
     public void testGetJsonld() {
-        String responseMsg = target.path("myresource.jsonld").request().get(String.class);
+        String responseMsg = target.path("query.jsonld").request().get(String.class);
         System.out.print(responseMsg);
     }
 
     @Test
     public void testGetJsonldWithQuery() {
-        String sparql = "test";
-        String responseMsg = target.path("myresource.jsonld").queryParam("sparql", sparql).request().get(String.class);
+        String sparql = "CONSTRUCT { ?o1 ?s1 ?o2} WHERE { ?o1 ?s1 ?o2}";
+        String responseMsg = target.path("query.jsonld").queryParam("sparql", "{sparql}").resolveTemplate("sparql", sparql).request().get(String.class);
         System.out.print(responseMsg);
     }
 
     @Test
     public void testGetXML() {
-        String responseMsg = target.path("myresource.xml").request().get(String.class);
+        String responseMsg = target.path("query.xml").request().get(String.class);
         System.out.print(responseMsg);
     }
 
@@ -32,9 +32,9 @@ public class RdfResourceTest extends AbstractResourceTest
     public void testPutTurtle() {
         Entity content = Entity.entity(this.getClass().getResourceAsStream("/annotations/example1.ttl"), "text/turtle") ;
         //Entity content = Entity.entity("test", "text/turtle") ;
-        Response putResponse = target.path("myresource.ttl").request().put(content);
+        Response putResponse = target.path("query.ttl").request().put(content);
         Assert.assertTrue("Wrong HTTP status message : "+putResponse.getStatus(), putResponse.getStatus()/100 == 2);
-        String getResponse = target.path("myresource.jsonld").request().get(String.class);
+        String getResponse = target.path("query.jsonld").request().get(String.class);
         System.out.print(getResponse);
     }
 }

@@ -10,7 +10,7 @@
     <name>rest RDF server</name>
 
     <properties>
-        <version.slf4j>1.6.0</version.slf4j>
+        <version.slf4j>1.6.5</version.slf4j>
         <jersey.version>2.7</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>

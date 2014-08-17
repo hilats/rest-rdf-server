@@ -85,7 +85,7 @@ public class SesameTripleStore
         try {
 
             GraphQueryResult graphResult = con.prepareGraphQuery(
-                    QueryLanguage.SPARQL, queryString!=null?queryString:DEFAULT_SPARQL_QUERY).evaluate();
+                    QueryLanguage.SPARQL, (queryString!=null && queryString.length()>0)?queryString:DEFAULT_SPARQL_QUERY).evaluate();
 
             return graphResult;
         } catch (Exception e) {
