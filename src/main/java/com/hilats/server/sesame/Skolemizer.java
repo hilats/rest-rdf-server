@@ -18,8 +18,9 @@ public class Skolemizer extends RDFHandlerWrapper
 {
     private String defaultNamespace;
 
-    public Skolemizer(RDFHandler... rdfHandlers) {
+    public Skolemizer(String defaultNamespace, RDFHandler... rdfHandlers) {
         super(rdfHandlers);
+        this.defaultNamespace = defaultNamespace;
     }
 
     /**
@@ -54,7 +55,7 @@ public class Skolemizer extends RDFHandlerWrapper
                 skolemSubject = mapping.get(bnodeId);
             } else {
                 String id = UUID.randomUUID().toString();
-                skolemSubject = f.createURI("moz:" + id);
+                skolemSubject = f.createURI(defaultNamespace + id);
                 mapping.put(bnodeId, skolemSubject);
             }
         }
@@ -64,7 +65,7 @@ public class Skolemizer extends RDFHandlerWrapper
                 skolemObject = mapping.get(bnodeId);
             } else {
                 String id = UUID.randomUUID().toString();
-                skolemObject = f.createURI("moz:" + id);
+                skolemObject = f.createURI(defaultNamespace + id);
                 mapping.put(bnodeId, skolemObject);
             }
         }

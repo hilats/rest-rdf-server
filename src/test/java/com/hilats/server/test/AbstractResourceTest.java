@@ -55,6 +55,13 @@ public abstract class AbstractResourceTest {
         return getResponse;
     }
 
+    public Response deleteWithSuccess(String path) {
+        Response deleteResponse = target.path(path).request().delete();
+        org.junit.Assert.assertEquals("Wrong HTTP status message : " + deleteResponse.getStatus() + "\n" + deleteResponse.getStatusInfo().getReasonPhrase(), Response.Status.Family.SUCCESSFUL, deleteResponse.getStatusInfo().getFamily());
+
+        return deleteResponse;
+    }
+
     public Response getWithStatus(String path, int status) {
         Response getResponse = target.path(path).request().get();
         org.junit.Assert.assertEquals("Wrong HTTP status message : " + getResponse.getStatus(), status, getResponse.getStatus());
