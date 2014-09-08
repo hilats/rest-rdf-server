@@ -1,9 +1,13 @@
 package com.hilats.server;
 
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.servlet.ServletHandler;
+import org.glassfish.grizzly.servlet.ServletRegistration;
+import org.glassfish.grizzly.servlet.WebappContext;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
+import org.mitre.dsmiley.httpproxy.URITemplateProxyServlet;
 import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -50,21 +54,13 @@ public class Main {
         // exposing the Jersey application at BASE_URI
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), app);
 
+        WebappContext waCtx = new WebappContext("Proxy");
+        ServletRegistration reg = waCtx.addServlet("ProxyServlet", new URITemplateProxyServlet());
+        reg.setInitParameter("targetUri", "{_uri}");
+        reg.addMapping("/proxy");
 
-        /*
-        WebappContext webappContext = new WebappContext("grizzly web context", "");
+        waCtx.deploy(server);
 
-        FilterRegistration testFilterReg = webappContext.addFilter("ExtensionFilter", TestFilter.class);
-        testFilterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), "/*");
-
-        ServletRegistration servletRegistration = webappContext.addServlet("Jersey", org.glassfish.jersey.servlet.ServletContainer.class);
-        servletRegistration.addMapping("/myapp/*");
-        servletRegistration.setInitParameter("jersey.config.server.provider.packages", "com.example");
-
-
-        HttpServer server = HttpServer.createSimpleServer();
-        webappContext.deploy(server);
-        */
 
         return server;
 
@@ -84,8 +80,6 @@ public class Main {
         Logger.getLogger("org.glassfish.jersey.server.ServerRuntime$Responder").setLevel(Level.FINER);
 
         final HttpServer server = startServer();
-        System.out.println(String.format("Jersey app started with WADL available at "
-                + "%sapplication.wadl\nHit enter to stop it...", BASE_URI));
         System.in.read();
         server.stop();
     }
