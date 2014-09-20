@@ -13,6 +13,8 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import java.net.URI;
+
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractResourceTest {
@@ -23,7 +25,7 @@ public abstract class AbstractResourceTest {
     @Before
     public void setUp() throws Exception {
         // start the server
-        server = Main.startServer();
+        server = Main.startServer(URI.create("http://localhost:8080/api"));
         // create the client
         Client c = ClientBuilder.newClient();
 

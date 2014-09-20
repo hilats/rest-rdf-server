@@ -1,6 +1,11 @@
 package com.hilats.server;
 
+import org.glassfish.grizzly.Connection;
+import org.glassfish.grizzly.filterchain.FilterChainBuilder;
+import org.glassfish.grizzly.http.KeepAliveProbe;
+import org.glassfish.grizzly.http.server.AddOn;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.servlet.ServletHandler;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
@@ -28,18 +33,18 @@ public class Main {
     public static final String BASE_URI = "http://localhost:8080/api/";
 
 
-    public static HttpServer startServer() {
+    public static HttpServer startServer(URI uri) {
 
         ApplicationContext ctx = new ClassPathXmlApplicationContext("applicationContext.xml", "jersey-spring-applicationContext.xml");
 
-        return startServer(ctx);
+        return startServer(uri, ctx);
     }
 
     /**
      * Starts Grizzly HTTP server exposing JAX-RS resources defined in this application.
      * @return Grizzly HTTP server.
      */
-    public static HttpServer startServer(ApplicationContext ctx) {
+    public static HttpServer startServer(URI uri, ApplicationContext ctx) {
 
         //final JenaRdfApplication app = new JenaRdfApplication();
         //final SesameRdfApplication app = new SesameRdfApplication();
@@ -52,7 +57,7 @@ public class Main {
 
         // create and start a new instance of grizzly http server
         // exposing the Jersey application at BASE_URI
-        HttpServer server = GrizzlyHttpServerFactory.createHttpServer(URI.create(BASE_URI), app);
+        HttpServer server = GrizzlyHttpServerFactory.createHttpServer(uri, app);
 
         WebappContext waCtx = new WebappContext("Proxy");
         ServletRegistration reg = waCtx.addServlet("ProxyServlet", new URITemplateProxyServlet());
@@ -71,7 +76,7 @@ public class Main {
      * @param args
      * @throws java.io.IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         //System.setProperty("java.util.logging.config.file","logging.properties");
 
         //SLF4JBridgeHandler.removeHandlersForRootLogger();
@@ -79,8 +84,15 @@ public class Main {
 
         Logger.getLogger("org.glassfish.jersey.server.ServerRuntime$Responder").setLevel(Level.FINER);
 
-        final HttpServer server = startServer();
-        System.in.read();
+        String port = System.getenv().get("PORT");
+        if (port == null || port.length()==0) port = "8080";
+
+        String host = System.getenv().get("HOST");
+        if (host == null || host.length()==0) host = "localhost";
+
+        final HttpServer server = startServer(URI.create("http://"+host+":"+port+"/api"));
+
+        synchronized (Main.class) { Main.class.wait(); }
         server.stop();
     }
 }
