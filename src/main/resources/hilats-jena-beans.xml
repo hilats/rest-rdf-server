@@ -7,8 +7,19 @@
   http://www.springframework.org/schema/context
   http://www.springframework.org/schema/context/spring-context.xsd"
         >
+    <bean id="tdbDataset"
+          class="com.hilats.server.jena.JenaTripleStore"
+          factory-method="initDataset">
+        <constructor-arg value="classpath:jena/testDataset"/>
+    </bean>
 
-    <bean name="jenaRdfApplication" class="com.hilats.server.jena.JenaTripleStore">
+    <bean name="jenaConnFactory" class="com.hilats.server.jena.JenaConnectionFactory">
+        <constructor-arg ref="tdbDataset"/>
+    </bean>
+
+    <bean name="tripleStore" class="com.hilats.server.jena.JenaTripleStore">
+        <constructor-arg ref="tdbDataset"/>
+        <constructor-arg ref="jenaConnFactory"/>
     </bean>
 
 </beans>

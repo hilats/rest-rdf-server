@@ -12,7 +12,8 @@
     <properties>
         <version.slf4j>1.6.5</version.slf4j>
         <!-- jersey 2.7 is not backward comp with JDK6, needed for Heroku -->
-        <jersey.version>2.6</jersey.version>
+        <!-- jersey 2.7 is required to get HK2 dispose properly called -->
+        <jersey.version>2.7</jersey.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -81,7 +82,7 @@
             <groupId>org.apache.jena</groupId>
             <artifactId>apache-jena-libs</artifactId>
             <type>pom</type>
-            <version>2.11.1</version>
+            <version>2.12.1</version>
         </dependency>
 
         <dependency>

@@ -1,5 +1,6 @@
 package com.hilats.server.sesame;
 
+import com.hilats.server.AbstractTripleStore;
 import com.hilats.server.RdfApplication;
 import com.hilats.server.RepoConnectionFactory;
 import com.hilats.server.TripleStore;
@@ -28,14 +29,11 @@ import java.util.Map;
  */
 
 public class SesameTripleStore
-    implements TripleStore
+    extends AbstractTripleStore
 
 {
-    SesameConnectionFactory connFactory;
-
     protected SesameTripleStore(SesameConnectionFactory connFactory) throws RepositoryException {
-
-        this.connFactory = connFactory;
+        super(connFactory);
         connFactory.getRepository().initialize();
     }
 
@@ -94,11 +92,6 @@ public class SesameTripleStore
     }
 
     public RepositoryConnection getSesameConnection() {
-        return (RepositoryConnection)connFactory.getCurrentConnection().getOriginalConnection();
-    }
-
-    @Override
-    public RepoConnectionFactory getRepoConnectionFactory() {
-        return connFactory;
+        return (RepositoryConnection)getRepoConnectionFactory().getCurrentConnection().getOriginalConnection();
     }
 }

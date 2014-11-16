@@ -8,14 +8,12 @@
   http://www.springframework.org/schema/context/spring-context.xsd"
         >
 
-    <import resource="hilats-sesame-beans.xml"/>
+    <import resource="hilats-jena-beans.xml"/>
 
     <bean name="rdfApplication" class="com.hilats.server.RdfApplication">
         <constructor-arg name="store" ref="tripleStore"/>
-        <!--
         <constructor-arg name="initData" value="annotations/example1.ttl"/>
         <constructor-arg name="mimeType" value="text/turtle"/>
-        -->
         <constructor-arg><list></list></constructor-arg>
     </bean>
 

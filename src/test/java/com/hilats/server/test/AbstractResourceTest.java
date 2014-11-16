@@ -25,7 +25,7 @@ public abstract class AbstractResourceTest {
     @Before
     public void setUp() throws Exception {
         // start the server
-        server = Main.startServer(URI.create("http://localhost:8080/api"));
+        server = setupServer();
         // create the client
         Client c = ClientBuilder.newClient();
 
@@ -36,6 +36,10 @@ public abstract class AbstractResourceTest {
         // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
 
         target = c.target(Main.BASE_URI);
+    }
+
+    public HttpServer setupServer() {
+        return Main.startServer(URI.create(Main.BASE_URI));
     }
 
     @After

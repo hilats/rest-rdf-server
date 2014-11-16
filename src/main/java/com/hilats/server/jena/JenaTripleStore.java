@@ -1,17 +1,22 @@
 package com.hilats.server.jena;
 
+import com.hilats.server.AbstractTripleStore;
 import com.hilats.server.RdfApplication;
 import com.hilats.server.RepoConnectionFactory;
 import com.hilats.server.TripleStore;
-import com.hp.hpl.jena.query.Query;
-import com.hp.hpl.jena.query.QueryExecution;
-import com.hp.hpl.jena.query.QueryExecutionFactory;
-import com.hp.hpl.jena.query.QueryFactory;
+import com.hp.hpl.jena.query.*;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.tdb.TDBFactory;
+import com.hp.hpl.jena.tdb.base.file.Location;
+import org.apache.jena.riot.Lang;
+import org.apache.jena.riot.RDFDataMgr;
 import org.apache.jena.riot.RDFLanguages;
+import org.springframework.core.io.Resource;
 
 import javax.ws.rs.core.StreamingOutput;
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -21,25 +26,26 @@ import java.util.Map;
  * Created by pduchesne on 24/04/14.
  */
 public class JenaTripleStore
-    implements TripleStore
+    extends AbstractTripleStore
 {
-    Model model;
+    Dataset ds;
 
-    public JenaTripleStore() {
+    public static Dataset initDataset(Resource dataResource) throws IOException {
+        return TDBFactory.createDataset(dataResource.getFile().getAbsolutePath());
+    }
 
-        model = ModelFactory.createDefaultModel();
-        model.read(this.getClass().getResourceAsStream("/annotations/example1.ttl"), null, "TURTLE");
-
-        //JenaJSONLD.init(); //TODO
+    public JenaTripleStore(Dataset ds, JenaConnectionFactory connFac) {
+        super(connFac);
+        this.ds = ds;
     }
 
     public Model getModel() {
-        return model;
+        return getRepoConnectionFactory().getCurrentModel();
     }
 
     @Override
     public void addStatements(InputStream in, String mimeType) {
-        throw new UnsupportedOperationException("Not implemented");
+        RDFDataMgr.read(getModel(), in, RDFLanguages.nameToLang(mimeType));
     }
 
     @Override
@@ -62,20 +68,19 @@ public class JenaTripleStore
     public Model getStatements(String sparql) {
         return sparql != null ?
                 getTupleSet(sparql) :
-                model;
+                getModel();
     }
 
     public Model getTupleSet(String queryString) {
 
         Query query = QueryFactory.create(queryString) ;
-        QueryExecution qe = QueryExecutionFactory.create(query, model) ;
+        QueryExecution qe = QueryExecutionFactory.create(query, getModel()) ;
 
         return qe.execConstruct();
     }
 
     @Override
-    public RepoConnectionFactory getRepoConnectionFactory() {
-        //TODO
-        return null;
+    public JenaConnectionFactory getRepoConnectionFactory() {
+        return (JenaConnectionFactory)super.getRepoConnectionFactory();
     }
 }
