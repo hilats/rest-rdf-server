@@ -3,18 +3,22 @@
 
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>com.hilats</groupId>
+        <artifactId>hilats-parent</artifactId>
+        <relativePath>../hilats-parent/pom.xml</relativePath>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
     <groupId>com.hilats.server</groupId>
     <artifactId>rest-rdf-server</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
     <name>rest RDF server</name>
 
+
     <properties>
-        <version.slf4j>1.6.5</version.slf4j>
         <!-- jersey 2.7 is not backward comp with JDK6, needed for Heroku -->
         <!-- jersey 2.7 is required to get HK2 dispose properly called -->
         <jersey.version>2.7</jersey.version>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>
@@ -134,16 +138,6 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.5.1</version>
-                <inherited>true</inherited>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                </configuration>
-            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
