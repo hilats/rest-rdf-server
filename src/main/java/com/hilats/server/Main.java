@@ -17,8 +17,12 @@ import org.slf4j.bridge.SLF4JBridgeHandler;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Level;
@@ -60,6 +64,29 @@ public class Main {
         HttpServer server = GrizzlyHttpServerFactory.createHttpServer(uri, app);
 
         WebappContext waCtx = new WebappContext("Proxy");
+        waCtx.addFilter("cordFilter", new Filter() {
+            @Override
+            public void init(FilterConfig filterConfig) throws ServletException {}
+
+            @Override
+            public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+
+                String origin = ((HttpServletRequest)request).getHeader("Origin");
+
+                chain.doFilter(request, response);
+
+                if (origin == null || (origin.contains("highlatitud.es") || origin.contains("localhost"))) {
+                    ((HttpServletResponse)response).setHeader("Access-Control-Allow-Origin", "*");
+                    ((HttpServletResponse)response).setHeader("Access-Control-Allow-Headers", "Range");
+                    ((HttpServletResponse)response).setHeader("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
+                }
+            }
+
+            @Override
+            public void destroy() {}
+        })
+        .addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), "/*");
+
         ServletRegistration reg = waCtx.addServlet("ProxyServlet", new URITemplateProxyServlet());
         reg.setInitParameter("targetUri", "{_uri}");
         reg.addMapping("/proxy");

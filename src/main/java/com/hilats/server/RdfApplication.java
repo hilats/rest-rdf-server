@@ -42,6 +42,7 @@ public class RdfApplication
         this.packages(RdfApplication.class.getPackage().getName()+".rest.resources");
         this.register(ExceptionHandler.class);
         register(JacksonFeature.class);
+        register(CORSResponseFilter.class);
         //this.register(DBConnectionFilter.class);
         register(new AbstractBinder() {
             @Override
