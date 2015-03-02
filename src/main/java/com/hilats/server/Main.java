@@ -73,13 +73,20 @@ public class Main {
 
                 String origin = ((HttpServletRequest)request).getHeader("Origin");
 
+                if (origin == null || (origin.contains("highlatitud.es") || origin.contains("localhost"))) {
+                    ((HttpServletResponse)response).setHeader("Access-Control-Allow-Origin", "*");
+                    ((HttpServletResponse)response).setHeader("Access-Control-Allow-Headers", "Range, X-Requested-With");
+                    ((HttpServletResponse)response).setHeader("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
+                }
+
                 chain.doFilter(request, response);
 
                 if (origin == null || (origin.contains("highlatitud.es") || origin.contains("localhost"))) {
                     ((HttpServletResponse)response).setHeader("Access-Control-Allow-Origin", "*");
-                    ((HttpServletResponse)response).setHeader("Access-Control-Allow-Headers", "Range");
+                    ((HttpServletResponse)response).setHeader("Access-Control-Allow-Headers", "Range, X-Requested-With");
                     ((HttpServletResponse)response).setHeader("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
                 }
+
             }
 
             @Override
