@@ -4,6 +4,7 @@ import org.glassfish.grizzly.Connection;
 import org.glassfish.grizzly.filterchain.FilterChainBuilder;
 import org.glassfish.grizzly.http.KeepAliveProbe;
 import org.glassfish.grizzly.http.server.AddOn;
+import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.servlet.ServletHandler;
@@ -100,6 +101,9 @@ public class Main {
 
         waCtx.deploy(server);
 
+        // Static content handler
+        server.getServerConfiguration().addHttpHandler(
+                new CLStaticHttpHandler(Main.class.getClassLoader(), "/web/"), "/");
 
         return server;
 
