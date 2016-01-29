@@ -46,7 +46,7 @@ public class SesameConnectionFactory
     @Override
     public boolean isConnectionActive() {
         try {
-            return currentconnection != null && currentconnection.isOpen();
+            return currentconnection != null && currentconnection.isActive();
         } catch (Exception e) {
             throw new RuntimeException("Failed connection", e);
         }

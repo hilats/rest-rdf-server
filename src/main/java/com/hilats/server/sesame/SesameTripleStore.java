@@ -55,6 +55,8 @@ public class SesameTripleStore
     public void addStatements(InputStream in, String mimeType) {
         RepositoryConnection con = getSesameConnection();
         try {
+            con.begin();
+
             // use "http://localhost/test" for turtle ?
             con.add(in, "http://localhost/test", RDFFormat.forMIMEType(mimeType));
             con.commit();
