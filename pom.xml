@@ -19,6 +19,9 @@
         <!-- jersey 2.7 is not backward comp with JDK6, needed for Heroku -->
         <!-- jersey 2.7 is required to get HK2 dispose properly called -->
         <jersey.version>2.7</jersey.version>
+
+        <!-- matches jersey 2.7 spring dep -->
+        <spring.version>3.2.3.RELEASE</spring.version>
     </properties>
 
     <dependencyManagement>
@@ -127,6 +130,43 @@
             <artifactId>smiley-http-proxy-servlet</artifactId>
             <version>1.5</version>
         </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+
+        <dependency>
+             <groupId>org.springframework.security</groupId>
+             <artifactId>spring-security-web</artifactId>
+             <version>${spring.version}</version>
+         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-core</artifactId>
+            <version>1.1.0.RELEASE</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.social</groupId>
+            <artifactId>spring-social-web</artifactId>
+            <version>1.1.0.RELEASE</version>
+        </dependency>
+
+         <dependency>
+             <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${spring.version}</version>
+         </dependency>
+
+         <dependency>
+             <groupId>io.jsonwebtoken</groupId>
+             <artifactId>jjwt</artifactId>
+             <version>0.4</version>
+         </dependency>
 
         <dependency>
             <groupId>junit</groupId>

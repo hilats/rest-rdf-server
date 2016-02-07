@@ -8,14 +8,15 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
 import java.net.URI;
 
 public class JeanResourceTest extends AbstractResourceTest
 {
 
     @Override
-    public HttpServer setupServer() {
-        return Main.startServer(URI.create(Main.BASE_URI), new ClassPathXmlApplicationContext("jena-application-test-ctx.xml", "jersey-spring-applicationContext.xml"));
+    public HttpServer setupServer() throws IOException {
+        return Main.startServer(URI.create(Main.BASE_URI), new String[] {"jena-application-test-ctx.xml", "jersey-spring-applicationContext.xml"});
     }
 
     @Test

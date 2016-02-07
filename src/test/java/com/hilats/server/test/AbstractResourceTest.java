@@ -3,6 +3,7 @@ package com.hilats.server.test;
 import com.hilats.server.Main;
 import junit.framework.Assert;
 import org.glassfish.grizzly.http.server.HttpServer;
+import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -13,6 +14,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Response;
 
+import java.io.IOException;
 import java.net.URI;
 
 import static org.junit.Assert.assertEquals;
@@ -28,6 +30,7 @@ public abstract class AbstractResourceTest {
         server = setupServer();
         // create the client
         Client c = ClientBuilder.newClient();
+        c.register(HttpAuthenticationFeature.basic("test", "test"));
 
         // uncomment the following line if you want to enable
         // support for JSON in the client (you also have to uncomment
@@ -35,10 +38,10 @@ public abstract class AbstractResourceTest {
         // --
         // c.configuration().enable(new org.glassfish.jersey.media.json.JsonJaxbFeature());
 
-        target = c.target(Main.BASE_URI);
+        target = c.target(Main.BASE_URI+"/api");
     }
 
-    public HttpServer setupServer() {
+    public HttpServer setupServer() throws IOException {
         return Main.startServer(URI.create(Main.BASE_URI));
     }
 

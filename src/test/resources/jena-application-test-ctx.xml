@@ -9,6 +9,7 @@
         >
 
     <import resource="hilats-jena-beans.xml"/>
+    <import resource="hilats-security-beans.xml"/>
 
     <bean name="rdfApplication" class="com.hilats.server.RdfApplication">
         <constructor-arg name="store" ref="tripleStore"/>
