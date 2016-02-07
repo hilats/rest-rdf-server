@@ -19,9 +19,6 @@ public class AbstractResource {
     @Context
     RdfApplication app;
 
-    @Inject
-    RepoConnection repoConnection;
-
     public RdfApplication getApplication() {
         return app;
     }
