@@ -21,10 +21,11 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.hilats.server.spring.jwt.TestUserService;
-import com.hilats.server.spring.jwt.TokenAuthenticationService;
-import com.hilats.server.spring.jwt.UserAuthentication;
+import com.hilats.server.spring.jwt.*;
 
+import com.hilats.server.spring.jwt.services.AuthProfile;
+import com.hilats.server.spring.jwt.services.FacebookProfile;
+import com.hilats.server.spring.jwt.services.GoogleProfile;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.hibernate.validator.constraints.NotBlank;
@@ -72,6 +73,44 @@ public class AuthResource
     }
 
 
+
+
+    @POST
+    @Path("facebook")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response loginFacebook(@Valid final Payload payload,
+                                  @Context final HttpServletRequest request) throws ParseException {
+        final String accessTokenUrl = "https://graph.facebook.com/v2.3/oauth/access_token";
+        final String graphApiUrl = "https://graph.facebook.com/v2.3/me";
+
+        Response response;
+
+        // Step 1. Exchange authorization code for access token.
+
+        response =
+                client.target(accessTokenUrl).queryParam(CLIENT_ID_KEY, payload.getClientId())
+                        .queryParam(REDIRECT_URI_KEY, payload.getRedirectUri())
+                        .queryParam(CLIENT_SECRET, "6609f0aec8aacf71ea5f7ffca1694dd1")
+                        .queryParam(CODE_KEY, payload.getCode()).request("text/plain")
+                        .accept(MediaType.TEXT_PLAIN).get();
+
+        Map<String, Object> credentials = response.readEntity(Map.class);
+
+        response =
+                client.target(graphApiUrl).queryParam("access_token", credentials.get("access_token"))
+                        .queryParam("expires_in", credentials.get("expires_in")).request("application/json").get();
+
+        final Map<String, Object> userInfo = response.readEntity(Map.class);
+
+        FacebookProfile profile = new FacebookProfile(
+                credentials,
+                userInfo);
+
+        // Step 3. Process the authenticated the user.
+        return processUser(request, profile);
+    }
+
+
     @POST
     @Path("google")
     public Response loginGoogle(@Valid final Payload payload,
@@ -88,12 +127,12 @@ public class AuthResource
         accessData.add(CODE_KEY, payload.getCode());
         accessData.add(GRANT_TYPE_KEY, AUTH_CODE);
         response = client.target(accessTokenUrl).request().post(Entity.form(accessData));
-        Map<String, Object> jsonResp = response.readEntity(Map.class);
+        Map<String, Object> credentials = response.readEntity(Map.class);
         accessData.clear();
 
 
         // Step 2. Retrieve profile information about the current user.
-        final String accessToken = (String) jsonResp.get("access_token");
+        final String accessToken = (String) credentials.get("access_token");
         response =
                 client.target(peopleApiUrl)
                       .request("text/plain")
@@ -102,11 +141,13 @@ public class AuthResource
 
         final Map<String, Object> userInfo = response.readEntity(Map.class);
 
+        GoogleProfile profile = new GoogleProfile(
+                credentials,
+                userInfo);
 
         // Step 3. Process the authenticated the user.
 
-        return processUser(request, userInfo,
-                userInfo.get("name").toString());
+        return processUser(request, profile);
 
     }
 
@@ -139,53 +180,49 @@ public class AuthResource
     }
 
 
-    private Response processUser(final HttpServletRequest request,
-                                 Map<String,Object> userInfo, final String displayName) throws ParseException {
+    private Response processUser(final HttpServletRequest request, AuthProfile profile) throws ParseException {
 
         TokenAuthenticationService tokenService = getApplication().getTokenService();
-        TestUserService userService = getApplication().getUserService();
+        HilatsUserService userService = getApplication().getUserService();
 
 
-        String userId = userInfo.get("sub").toString();
-        User user = userService.loadUserByUsername(userId);
-
-        // Step 3a. If user is already signed in then link accounts.
-        //final String authHeader = request.getHeader("Authorization");
-
-
+        // this takes the currently authenticated user, if any
         Authentication auth = tokenService.getAuthentication(request);
+
+        HilatsUser user;
 
         if (auth != null) {
 
             final String subject = auth.getName();
-            final User foundUser = userService.loadUserByUsername(subject);
-            //TODO check null
+            user = userService.findUser(subject);
+
+            if (user == null)
+                //How can this happen?
+                throw new IllegalStateException("user not found: "+subject);
+
+            if (user.getProviderProfiles().containsKey(profile.getProvider())) {
+                // this user is already linked to this auth profile
+                // ignore
+            } else {
+                //TODO ask confirmation ?
+                user.getProviderProfiles().put(profile.getProvider(), profile);
+            }
 
         } else {
-            // Step 3b. Create a new user account or return an existing one.
+            // Step 3b. Create a new user account.
 
 
-            user = new User(
-                    (String)userInfo.get("email"),
+            user = new HilatsUser(
+                    profile.getEmail(),
                     UUID.randomUUID().toString(),
-                    AuthorityUtils.createAuthorityList("user")
-            );
-            userService.addUser(user);
+                    new String[] {"user"});
+            user.getProviderProfiles().put(profile.getProvider(), profile);
 
-            /*
-            if (user.isPresent()) {
-                userToSave = user.get();
-            } else {
-                userToSave = new User();
-                userToSave.setProviderId(provider, id);
-                userToSave.setDisplayName(displayName);
-                userToSave = dao.save(userToSave);
-            }
-            */
+            userService.addUser(user);
         }
 
         // Login that user
-        UserAuthentication authentication = new UserAuthentication(user);
+        UserAuthentication authentication = new UserAuthentication(new HilatsUserDetails(user));
 
         String token = tokenService.createToken(authentication);
         //final Token token = AuthUtils.createToken(request.getRemoteHost(), userToSave.getId());

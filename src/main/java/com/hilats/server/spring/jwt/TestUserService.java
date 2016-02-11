@@ -6,20 +6,16 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.util.HashMap;
 
-public class TestUserService implements org.springframework.security.core.userdetails.UserDetailsService {
+public class TestUserService implements HilatsUserService {
 
-    private final AccountStatusUserDetailsChecker detailsChecker = new AccountStatusUserDetailsChecker();
-    private final HashMap<String, User> userMap = new HashMap();
+    private final HashMap<String, HilatsUser> userMap = new HashMap();
 
     @Override
-    public final User loadUserByUsername(String username) throws UsernameNotFoundException {
-        final User user = userMap.get(username);
-        if (user != null)
-            detailsChecker.check(user);
-        return user;
+    public final HilatsUser findUser(String username) throws UsernameNotFoundException {
+        return userMap.get(username);
     }
 
-    public void addUser(User user) {
-        userMap.put(user.getUsername(), user);
+    public void addUser(HilatsUser user) {
+        userMap.put(user.username, user);
     }
 }

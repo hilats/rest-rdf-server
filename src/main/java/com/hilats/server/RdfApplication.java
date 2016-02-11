@@ -1,6 +1,6 @@
 package com.hilats.server;
 
-import com.hilats.server.spring.jwt.TestUserService;
+import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -36,7 +36,7 @@ public class RdfApplication
     TokenAuthenticationService tokenService;
 
     @Autowired
-    TestUserService userService;
+    HilatsUserService userService;
 
     File initData;
     String initMimeType;
@@ -93,7 +93,7 @@ public class RdfApplication
 
         tokenService = applicationContext.getBean(TokenAuthenticationService.class);
 
-        userService = applicationContext.getBean(TestUserService.class);
+        userService = applicationContext.getBean(HilatsUserService.class);
     }
 
     public TripleStore getStore() {
@@ -104,7 +104,7 @@ public class RdfApplication
         return tokenService;
     }
 
-    public TestUserService getUserService() {
+    public HilatsUserService getUserService() {
         return userService;
     }
 }

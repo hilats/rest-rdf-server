@@ -8,13 +8,24 @@
   http://www.springframework.org/schema/context/spring-context.xsd"
         >
 
+    <bean id="mongo" class="com.hilats.server.spring.EmbeddedMongoFactoryBean">
+        <property name="dbPath" value="./embeddedMongo"/>
+    </bean>
+
     <bean name="securityConfigurer" class="com.hilats.server.spring.TestSecurityConfigurer"/>
 
-    <bean name="myUserService" class="com.hilats.server.spring.jwt.TestUserService"/>
+    <bean name="myUserService" class="com.hilats.server.spring.jwt.MongoUserService">
+        <constructor-arg ref="mongo"/>
+        <constructor-arg value="hilats_users"/>
+    </bean>
+
+    <bean name="myUserDetailsService" class="com.hilats.server.spring.jwt.HilatsUserDetailsService">
+        <constructor-arg ref="myUserService"/>
+    </bean>
 
     <bean name="myTokenAuthenticationService" class="com.hilats.server.spring.jwt.TokenAuthenticationService">
         <constructor-arg value="secret"/>
-        <constructor-arg ref="myUserService"/>
+        <constructor-arg ref="myUserDetailsService"/>
     </bean>
 
 </beans>

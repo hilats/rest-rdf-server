@@ -168,6 +168,32 @@
              <version>0.4</version>
          </dependency>
 
+        <!-- Used for user storage -->
+
+        <!-- Heroku Mongolab uses 3.0 server -->
+
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-mongodb</artifactId>
+            <!-- version above 1.4 require spring 4 -->
+            <version>1.4.0.RELEASE</version>
+        </dependency>
+
+        <!-- this overrides the dependency from spring (1.4.0 above depends on java client 2.11.4)
+        <dependency>
+            <groupId>org.mongodb</groupId>
+            <artifactId>mongo-java-driver</artifactId>
+            <version>3.0.4</version>
+        </dependency>
+        -->
+
+        <!-- Embedded mongodb for standalone deploy -->
+        <dependency>
+            <groupId>de.flapdoodle.embed</groupId>
+            <artifactId>de.flapdoodle.embed.mongo</artifactId>
+            <version>1.47.3</version>
+        </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

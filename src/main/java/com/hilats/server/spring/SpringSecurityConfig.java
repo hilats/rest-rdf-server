@@ -1,7 +1,8 @@
 package com.hilats.server.spring;
 
+import com.hilats.server.spring.jwt.HilatsUserDetailsService;
+import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.StatelessAuthenticationFilter;
-import com.hilats.server.spring.jwt.TestUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -23,7 +24,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
-    private TestUserService userService;
+    private HilatsUserDetailsService userService;
 
     @Autowired
     private TokenAuthenticationService tokenAuthenticationService;
@@ -42,7 +43,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
     public void setApplicationContext(ApplicationContext context) {
         super.setApplicationContext(context);
 
-        this.userService = context.getBean(TestUserService.class);
+        this.userService = context.getBean(HilatsUserDetailsService.class);
         //TODO why this crap? why isn't the class lookup functioning ?
         this.tokenAuthenticationService = (TokenAuthenticationService)context.getBean("myTokenAuthenticationService");
     }
