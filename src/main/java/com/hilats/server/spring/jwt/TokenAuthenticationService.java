@@ -30,7 +30,7 @@ public class TokenAuthenticationService {
         return token;
     }
 
-    public Authentication getAuthentication(HttpServletRequest request) {
+    public UserAuthentication getAuthentication(HttpServletRequest request) {
         final String token = request.getHeader(AUTH_HEADER_NAME);
         if (token != null) {
             String[] parts = token.split(" ");

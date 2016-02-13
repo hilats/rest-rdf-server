@@ -8,10 +8,7 @@ import java.util.UUID;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Context;
@@ -56,6 +53,17 @@ public class AuthResource
         client.register(JacksonFeature.class);
     }
 
+    @GET
+    public Response getCurrentAuth(@Context final HttpServletRequest request)
+    {
+        TokenAuthenticationService tokenService = getApplication().getTokenService();
+
+        // this takes the currently authenticated user, if any
+        UserAuthentication auth = tokenService.getAuthentication(request);
+
+        return Response.ok().entity(auth).build();
+    }
+
     @POST
     @Path("login")
     public Response login(@Valid final User user, @Context final HttpServletRequest request)
@@ -88,17 +96,24 @@ public class AuthResource
         // Step 1. Exchange authorization code for access token.
 
         response =
-                client.target(accessTokenUrl).queryParam(CLIENT_ID_KEY, payload.getClientId())
+                client.target(accessTokenUrl)
+                        .queryParam("scope", "email,public_profile")
+                        .queryParam(CLIENT_ID_KEY, payload.getClientId())
                         .queryParam(REDIRECT_URI_KEY, payload.getRedirectUri())
                         .queryParam(CLIENT_SECRET, "6609f0aec8aacf71ea5f7ffca1694dd1")
-                        .queryParam(CODE_KEY, payload.getCode()).request("text/plain")
+                        .queryParam(CODE_KEY, payload.getCode())
+                        .request("text/plain")
                         .accept(MediaType.TEXT_PLAIN).get();
 
         Map<String, Object> credentials = response.readEntity(Map.class);
 
         response =
-                client.target(graphApiUrl).queryParam("access_token", credentials.get("access_token"))
-                        .queryParam("expires_in", credentials.get("expires_in")).request("application/json").get();
+                client.target(graphApiUrl)
+                        .queryParam("fields", "id,name,email,picture")
+                        .queryParam("access_token", credentials.get("access_token"))
+                        .queryParam("expires_in", credentials.get("expires_in"))
+                        .request("application/json")
+                        .get();
 
         final Map<String, Object> userInfo = response.readEntity(Map.class);
 
