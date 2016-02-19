@@ -8,10 +8,10 @@ import java.util.Collection;
 
 public class UserAuthentication implements Authentication {
 
-    private final UserDetails user;
+    private final HilatsUserDetails user;
     private boolean authenticated = true;
 
-    public UserAuthentication(UserDetails user) {
+    public UserAuthentication(HilatsUserDetails user) {
         this.user = user;
     }
 
@@ -31,7 +31,7 @@ public class UserAuthentication implements Authentication {
     }
 
     @Override
-    public UserDetails getDetails() {
+    public HilatsUserDetails getDetails() {
         return user;
     }
 

@@ -29,4 +29,28 @@ public class HilatsUser {
     public Map<String, AuthProfile> getProviderProfiles() {
         return providerProfiles;
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String[] getRoles() {
+        return roles;
+    }
 }

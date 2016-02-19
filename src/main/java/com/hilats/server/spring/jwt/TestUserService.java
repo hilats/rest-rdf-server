@@ -10,6 +10,10 @@ public class TestUserService implements HilatsUserService {
 
     private final HashMap<String, HilatsUser> userMap = new HashMap();
 
+    public TestUserService() {
+        addUser(new HilatsUser("test", "test", new String[] {"user"}));
+    }
+
     @Override
     public final HilatsUser findUser(String username) throws UsernameNotFoundException {
         return userMap.get(username);

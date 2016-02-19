@@ -21,11 +21,11 @@ public class HilatsUserDetailsService
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public HilatsUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         HilatsUser user = userService.findUser(username);
         if (user == null) return null;
         else {
-            UserDetails details = new HilatsUserDetails(user);
+            HilatsUserDetails details = new HilatsUserDetails(user);
             detailsChecker.check(details);
 
             return details;

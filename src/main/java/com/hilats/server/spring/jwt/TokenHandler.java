@@ -9,9 +9,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 public final class TokenHandler {
 
     private final String secret;
-    private final UserDetailsService userService;
+    private final HilatsUserDetailsService userService;
 
-    public TokenHandler(String secret, UserDetailsService userService) {
+    public TokenHandler(String secret, HilatsUserDetailsService userService) {
         if (secret == null || secret.trim().length() == 0)
             throw new IllegalArgumentException("Secret not set");
 
@@ -19,7 +19,7 @@ public final class TokenHandler {
         this.userService = Preconditions.checkNotNull(userService);
     }
 
-    public UserDetails parseUserFromToken(String token) {
+    public HilatsUserDetails parseUserFromToken(String token) {
         String username = Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)

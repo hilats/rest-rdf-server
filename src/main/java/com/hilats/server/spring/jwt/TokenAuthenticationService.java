@@ -14,7 +14,7 @@ public class TokenAuthenticationService {
 
     private final TokenHandler tokenHandler;
 
-    public TokenAuthenticationService(String secret, UserDetailsService userService) {
+    public TokenAuthenticationService(String secret, HilatsUserDetailsService userService) {
         tokenHandler = new TokenHandler(secret, userService);
     }
 
@@ -35,7 +35,7 @@ public class TokenAuthenticationService {
         if (token != null) {
             String[] parts = token.split(" ");
             if ("Bearer".equals(parts[0])) {
-                final UserDetails user = tokenHandler.parseUserFromToken(token.split(" ")[1]);
+                final HilatsUserDetails user = tokenHandler.parseUserFromToken(token.split(" ")[1]);
                 if (user != null) {
                     return new UserAuthentication(user);
                 }

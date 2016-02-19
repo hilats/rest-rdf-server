@@ -52,4 +52,8 @@ public class HilatsUserDetails
     public boolean isEnabled() {
         return true;
     }
+
+    public HilatsUser getUser() {
+        return user;
+    }
 }

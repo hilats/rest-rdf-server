@@ -1,5 +1,6 @@
 package com.hilats.server.spring;
 
+import com.hilats.server.spring.jwt.HilatsUserDetailsService;
 import org.springframework.security.config.annotation.SecurityBuilder;
 import org.springframework.security.config.annotation.SecurityConfigurer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -9,6 +10,12 @@ import org.springframework.security.config.annotation.authentication.builders.Au
  */
 public class TestSecurityConfigurer implements SecurityConfigurer
 {
+    private HilatsUserDetailsService userService;
+
+    public TestSecurityConfigurer(HilatsUserDetailsService userService) {
+        this.userService = userService;
+    }
+
     @Override
     public void init(SecurityBuilder builder) throws Exception {
 
@@ -17,6 +24,7 @@ public class TestSecurityConfigurer implements SecurityConfigurer
     @Override
     public void configure(SecurityBuilder builder) throws Exception {
         ((AuthenticationManagerBuilder)builder)
+                .userDetailsService(userService).and()
                 .inMemoryAuthentication()
                 .withUser("test").password("test").roles("USER");
     }
