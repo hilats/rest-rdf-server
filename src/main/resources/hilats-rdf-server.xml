@@ -8,16 +8,11 @@
   http://www.springframework.org/schema/context/spring-context.xsd"
         >
 
-    <import resource="hilats-security-mongo-beans.xml"/>
-    <import resource="hilats-rdf-server.xml"/>
+    <!-- This context is imported by all sub-projects of RDF Server
+         Importing context is supposed to instantiate the RdfApplication subclass
+    -->
 
-    <bean name="rdfApplication" class="com.hilats.server.RdfApplication">
-        <constructor-arg name="store" ref="tripleStore"/>
-        <!--
-        <constructor-arg name="initData" value="annotations/example1.ttl"/>
-        <constructor-arg name="mimeType" value="text/turtle"/>
-        -->
-        <constructor-arg><list></list></constructor-arg>
-    </bean>
+    <import resource="hilats-sesame-beans.xml"/>
+    <import resource="hilats-security-beans.xml"/>
 
 </beans>
