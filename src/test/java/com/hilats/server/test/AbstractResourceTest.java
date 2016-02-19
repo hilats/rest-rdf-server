@@ -30,6 +30,8 @@ public abstract class AbstractResourceTest {
         server = setupServer();
         // create the client
         Client c = ClientBuilder.newClient();
+
+        // test user is created in TestSecurityConfigurer
         c.register(HttpAuthenticationFeature.basic("test", "test"));
 
         // uncomment the following line if you want to enable
