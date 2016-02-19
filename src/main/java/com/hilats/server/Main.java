@@ -128,7 +128,8 @@ public class Main {
 
         server.start();
 
-
+        // this is required to allow url-encoded slashes in IDs
+        server.getHttpHandler().setAllowEncodedSlash(true);
 
         return server;
 
@@ -141,6 +142,9 @@ public class Main {
      */
     public static void main(String[] args) throws IOException, InterruptedException {
         //System.setProperty("java.util.logging.config.file","logging.properties");
+
+        // Mongo logging - redirect JDK logging to log4j - this must be done prior to any potential invocation of JDK logging
+        //System.getProperties().put("java.util.logging.manager", "org.apache.logging.log4j.jul.LogManager");
 
         //SLF4JBridgeHandler.removeHandlersForRootLogger();
         //SLF4JBridgeHandler.install();
