@@ -6,6 +6,7 @@ import com.github.jsonldjava.core.JsonLdProcessor;
 import com.github.jsonldjava.sesame.SesameRDFParser;
 import com.github.jsonldjava.sesame.SesameTripleCallback;
 import com.github.jsonldjava.utils.JsonUtils;
+import com.hilats.server.rest.resources.Unique;
 import org.openrdf.model.Model;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.query.GraphQueryResult;
@@ -100,7 +101,17 @@ public class JSONStatementsReaderWriter
             Object statements = JsonLdProcessor.fromRDF(model, new SesameRDFParser());
             if (MediaType.APPLICATION_JSON_TYPE.equals(mediaType)) {
                 Map output = JsonLdProcessor.frame(statements, JSONLD_FRAME, new JsonLdOptions());
-                JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), output.get("@graph"));
+
+                List graph = (List)output.get("@graph");
+
+                if (isUnique(annotations)) {
+                    if (graph.size() > 1)
+                        throw new IllegalStateException("Result should be unique, but graph contains multiple objects");
+
+                    JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), graph.get(0));
+                }
+                else
+                    JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), graph);
             } else if (JSONLD.equals(mediaType)) {
                 Map output = JsonLdProcessor.compact(statements, PARSE_CONTEXT, new JsonLdOptions());
                 JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), output);
@@ -111,4 +122,12 @@ public class JSONStatementsReaderWriter
             throw new WebApplicationException("Failed to write RDF statements into JSON entity", jsonLdError);
         }
     }
+
+    public boolean isUnique(Annotation[] annots) {
+        for (Annotation a : annots)
+            if (a instanceof Unique) return true;
+
+        return false;
+    }
+
 }
