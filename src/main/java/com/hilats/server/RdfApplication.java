@@ -43,8 +43,8 @@ public class RdfApplication
     @Autowired
     HilatsUserService userService;
 
-    File initData;
-    String initMimeType;
+    protected File initData;
+    protected String initMimeType;
 
     protected RdfApplication(TripleStore store, Object... components) {
         this.store = store;
@@ -82,24 +82,14 @@ public class RdfApplication
         if (initData != null) {
             RepoConnection conn = connFactory.getCurrentConnection();
             try {
-                if ("application/json".equals(initMimeType)) {
-                    // the default Sesame rio readers do not support plain json
-                    // need to use the registered readerWriter with framing
-                    List<? extends JSONStatementsReaderWriter> jsonReaders = findRegisteredComponents(JSONStatementsReaderWriter.class);
-                    if (jsonReaders.size() == 0)
-                        throw new IllegalStateException("Init data in JSON format, but not registered reader for JSON");
-                    Model statements = jsonReaders.get(0).readFrom(Model.class, null, null, MediaType.APPLICATION_JSON_TYPE, null, new FileInputStream(initData));
-                    store.addStatements(statements);
-                } else {
                     store.addStatements(new FileInputStream(initData), initMimeType);
-                }
             } finally {
                 connFactory.closeCurrentConnection();
             }
         }
     }
 
-    private <C> List<? extends C> findRegisteredComponents(Class<C> c) {
+    protected <C> List<? extends C> findRegisteredComponents(Class<C> c) {
         List result = new ArrayList();
         for (Object o: getInstances())
             if (c.isAssignableFrom(o.getClass()))
@@ -130,5 +120,9 @@ public class RdfApplication
 
     public HilatsUserService getUserService() {
         return userService;
+    }
+
+    protected RepoConnectionFactory getConnFactory() {
+        return connFactory;
     }
 }
