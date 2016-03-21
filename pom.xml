@@ -193,15 +193,20 @@
             <artifactId>spring-data-mongodb</artifactId>
             <!-- version above 1.4 require spring 4 -->
             <version>1.4.0.RELEASE</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.mongodb</groupId>
+                    <artifactId>mongo-java-driver</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
-        <!-- this overrides the dependency from spring (1.4.0 above depends on java client 2.11.4)
+        <!-- this overrides the dependency from spring (1.4.0 above depends on java client 2.11.4) -->
         <dependency>
             <groupId>org.mongodb</groupId>
             <artifactId>mongo-java-driver</artifactId>
             <version>3.0.4</version>
         </dependency>
-        -->
 
         <!-- Embedded mongodb for standalone deploy -->
         <dependency>
