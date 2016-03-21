@@ -1,5 +1,6 @@
 package com.hilats.server;
 
+import com.hilats.server.sesame.JSONStatementsReaderWriter;
 import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -8,16 +9,20 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.openrdf.model.Model;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -77,11 +82,30 @@ public class RdfApplication
         if (initData != null) {
             RepoConnection conn = connFactory.getCurrentConnection();
             try {
-                store.addStatements(new FileInputStream(initData), initMimeType);
+                if ("application/json".equals(initMimeType)) {
+                    // the default Sesame rio readers do not support plain json
+                    // need to use the registered readerWriter with framing
+                    List<? extends JSONStatementsReaderWriter> jsonReaders = findRegisteredComponents(JSONStatementsReaderWriter.class);
+                    if (jsonReaders.size() == 0)
+                        throw new IllegalStateException("Init data in JSON format, but not registered reader for JSON");
+                    Model statements = jsonReaders.get(0).readFrom(Model.class, null, null, MediaType.APPLICATION_JSON_TYPE, null, new FileInputStream(initData));
+                    store.addStatements(statements);
+                } else {
+                    store.addStatements(new FileInputStream(initData), initMimeType);
+                }
             } finally {
                 connFactory.closeCurrentConnection();
             }
         }
+    }
+
+    private <C> List<? extends C> findRegisteredComponents(Class<C> c) {
+        List result = new ArrayList();
+        for (Object o: getInstances())
+            if (c.isAssignableFrom(o.getClass()))
+                result.add(o);
+
+        return result;
     }
 
     @Override
