@@ -56,7 +56,7 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anonymous().and()
                 .servletApi().and()
                 .headers().cacheControl().and()
-                .httpBasic().and() //enable basic authentication, but users defined elsewhere
+                //.httpBasic().and() //enable basic authentication, but users defined elsewhere
                 .authorizeRequests()
 
                 // Allow anonymous resource requests
