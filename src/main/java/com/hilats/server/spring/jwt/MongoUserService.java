@@ -38,6 +38,16 @@ public class MongoUserService implements HilatsUserService {
 
     @Override
     public void addUser(HilatsUser user) {
+        Query searchUserQuery = new Query(Criteria.where("username").is(user.getUsername()));
+        if (template.exists(searchUserQuery, HilatsUser.class))
+            throw new IllegalArgumentException("User already exists : "+user.getUsername());
+
+        saveUser(user);
+    }
+
+    @Override
+    public void saveUser(HilatsUser user) {
+        //TODO check existing ?
         template.save(user);
     }
 }

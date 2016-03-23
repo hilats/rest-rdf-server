@@ -1,6 +1,7 @@
 package com.hilats.server.spring.jwt;
 
 import com.hilats.server.spring.jwt.services.AuthProfile;
+import org.springframework.data.annotation.Id;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +11,9 @@ import java.util.Map;
  */
 public class HilatsUser {
 
+    @Id
     public String username;
+
     public String password;
     public String firstName;
     public String lastName;

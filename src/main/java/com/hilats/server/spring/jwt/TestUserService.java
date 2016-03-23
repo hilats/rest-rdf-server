@@ -22,4 +22,9 @@ public class TestUserService implements HilatsUserService {
     public void addUser(HilatsUser user) {
         userMap.put(user.username, user);
     }
+
+    @Override
+    public void saveUser(HilatsUser user) {
+        // in memory -- nothing to do
+    }
 }

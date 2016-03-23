@@ -16,12 +16,25 @@
 
 
     <properties>
+        <!-- IMPORTANT About versions
+             - Mongo client must be >3.0 to authenticate with 3.0 server
+             - Spring-mongodb uses 3.0 client only with version 1.7+, which relies on spring 4
+             - Jersey BOM is not released with Spring 4, and relies on spring-security 3.2.3
+             ==> the right mix of versions is as below,
+                 and spring dependencies imported from jersey bom are overridden
+        -->
+
+
         <!-- jersey 2.7 is not backward comp with JDK6, needed for Heroku -->
         <!-- jersey 2.7 is required to get HK2 dispose properly called -->
         <jersey.version>2.7</jersey.version>
 
-        <!-- matches jersey 2.7 spring dep -->
-        <spring.version>3.2.3.RELEASE</spring.version>
+        <!-- 3.2.3 matches jersey 2.7 spring dep -->
+        <spring.version>4.0.4.RELEASE</spring.version>
+
+        <spring.security.version>3.2.3.RELEASE</spring.security.version>
+
+        <spring.mongo.version>1.7.2.RELEASE</spring.mongo.version>
     </properties>
 
     <dependencyManagement>
@@ -147,6 +160,17 @@
             <version>1.5</version>
         </dependency>
 
+        <!-- override jersey BOM version for spring-beans and spring-core -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>${spring.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework</groupId>
@@ -157,7 +181,7 @@
         <dependency>
              <groupId>org.springframework.security</groupId>
              <artifactId>spring-security-web</artifactId>
-             <version>${spring.version}</version>
+             <version>${spring.security.version}</version>
          </dependency>
 
         <dependency>
@@ -175,7 +199,7 @@
          <dependency>
              <groupId>org.springframework.security</groupId>
             <artifactId>spring-security-config</artifactId>
-            <version>${spring.version}</version>
+            <version>${spring.security.version}</version>
          </dependency>
 
          <dependency>
@@ -192,7 +216,7 @@
             <groupId>org.springframework.data</groupId>
             <artifactId>spring-data-mongodb</artifactId>
             <!-- version above 1.4 require spring 4 -->
-            <version>1.4.0.RELEASE</version>
+            <version>${spring.mongo.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.mongodb</groupId>

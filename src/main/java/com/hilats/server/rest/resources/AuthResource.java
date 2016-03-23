@@ -215,25 +215,27 @@ public class AuthResource
                 //How can this happen?
                 throw new IllegalStateException("user not found: "+subject);
 
-            if (user.getProviderProfiles().containsKey(profile.getProvider())) {
-                // this user is already linked to this auth profile
-                // ignore
-            } else {
-                //TODO ask confirmation ?
-                user.getProviderProfiles().put(profile.getProvider(), profile);
-            }
-
         } else {
-            // Step 3b. Create a new user account.
+            // Step 3b. Create a new user account or return an existing one.
 
+            user = userService.findUser(profile.getEmail());
+            if (user != null) {
+                // OK
+            } else {
+                user = new HilatsUser(
+                        profile.getEmail(),
+                        UUID.randomUUID().toString(),
+                        new String[] {"user"});
 
-            user = new HilatsUser(
-                    profile.getEmail(),
-                    UUID.randomUUID().toString(),
-                    new String[] {"user"});
+                userService.addUser(user);
+            }
+        }
+
+        if (! user.getProviderProfiles().containsKey(profile.getProvider())) {
+            // This auth provider is not yet registered for this user --> add it
+            //TODO ask confirmation ?
             user.getProviderProfiles().put(profile.getProvider(), profile);
-
-            userService.addUser(user);
+            userService.saveUser(user);
         }
 
         // Login that user

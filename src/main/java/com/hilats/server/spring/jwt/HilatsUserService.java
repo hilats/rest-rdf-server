@@ -10,4 +10,6 @@ public interface HilatsUserService
     public HilatsUser findUser(String userid);
 
     void addUser(HilatsUser user);
+
+    void saveUser(HilatsUser user);
 }
