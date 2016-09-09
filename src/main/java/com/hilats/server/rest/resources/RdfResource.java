@@ -3,6 +3,8 @@ package com.hilats.server.rest.resources;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * SPARQL query resource
@@ -12,11 +14,22 @@ public class RdfResource
     extends AbstractResource
 {
 
+    @Context
+    Request request;
+
     @PUT
     @Consumes({"application/ld+json", MediaType.APPLICATION_JSON})
     public void putJsonLd(InputStream jsonld) {
 
         getApplication().getStore().addStatements(jsonld, "application/ld+json");
+
+    }
+
+    @PUT
+    @Consumes({"application/rdf+xml", MediaType.APPLICATION_XML})
+    public void putXml(InputStream xml) {
+
+        getApplication().getStore().addStatements(xml, "application/rdf+xml");
 
     }
 
@@ -28,6 +41,20 @@ public class RdfResource
 
     }
 
+
+    @DELETE
+    public StreamingOutput delete(@QueryParam("sparql") String sparql) {
+        List<Variant> variants = Variant.mediaTypes(
+                MediaType.valueOf("application/ld+json"),
+                MediaType.valueOf("application/rdf+xml"),
+                MediaType.valueOf("text/turtle")).build();
+        Variant selected = request.selectVariant(variants);
+        if (selected == null) {
+            throw new WebApplicationException(Response.notAcceptable(variants).build());
+        }
+        return getApplication().getStore().removeStatements(sparql, selected.getMediaType().toString(), null);
+
+    }
 
     @GET
     @Produces({"application/ld+json", MediaType.APPLICATION_JSON})

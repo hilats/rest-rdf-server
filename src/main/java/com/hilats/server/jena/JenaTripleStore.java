@@ -49,6 +49,11 @@ public class JenaTripleStore
     }
 
     @Override
+    public StreamingOutput removeStatements(String sparql, String mimetype, Map config) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    @Override
     public void addStatements(Collection statements) {
         throw new UnsupportedOperationException("Not implemented");
     }

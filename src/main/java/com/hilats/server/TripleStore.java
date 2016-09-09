@@ -16,6 +16,8 @@ public interface TripleStore {
 
     public abstract void addStatements(InputStream in, String mimeType);
 
+    public abstract StreamingOutput removeStatements(String sparql, String mimetype, Map config);
+
     public abstract Object getStatements(String sparql);
 
     public abstract StreamingOutput getStatementsStreamer(String sparql, String mimeType, Map config);

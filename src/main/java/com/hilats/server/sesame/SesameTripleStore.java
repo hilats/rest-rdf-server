@@ -42,12 +42,20 @@ public class SesameTripleStore
     public void addStatements(Collection statements) {
         RepositoryConnection con = getSesameConnection();
         try {
+            con.begin();
             //RDFHandlerWrapper rdfInserter = new Skolemizer(new RDFInserter(con)); //TODO still needed here ?
             //for (Statement s: (Collection<Statement>)statements) rdfInserter.handleStatement(s);
             con.add((Collection<Statement>) statements);
             con.commit();
         } catch (Exception e) {
             throw new RuntimeException("Failed to insert RDF stream", e);
+        }  finally {
+            try {
+                if (con.isActive())
+                    con.rollback();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to roll back transaction", e);
+            }
         }
     }
 
@@ -62,6 +70,37 @@ public class SesameTripleStore
             con.commit();
         } catch (Exception e) {
             throw new RuntimeException("Failed to insert RDF stream", e);
+        } finally {
+            try {
+                if (con.isActive())
+                    con.rollback();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to roll back transaction", e);
+            }
+        }
+    }
+
+    @Override
+    public StreamingOutput removeStatements(String sparql, String mimetype, Map config) {
+        RepositoryConnection con = getSesameConnection();
+        try {
+            con.begin();
+            GraphQueryResult graphResult = con.prepareGraphQuery(
+                    QueryLanguage.SPARQL, (sparql!=null && sparql.length()>0)?sparql:DEFAULT_SPARQL_QUERY).evaluate();
+
+            con.remove(graphResult);
+            con.commit();
+
+            return SesameStreamingOutput.createStreamer(graphResult, RDFFormat.forMIMEType(mimetype), config);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to insert RDF stream", e);
+        } finally {
+            try {
+                if (con.isActive())
+                    con.rollback();
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to roll back transaction", e);
+            }
         }
     }
 
