@@ -151,13 +151,24 @@ public class Main {
 
         Logger.getLogger("org.glassfish.jersey.server.ServerRuntime$Responder").setLevel(Level.FINER);
 
-        String port = System.getenv().get("PORT");
-        if (port == null || port.length()==0) port = "8080";
+        String baseUrl;
+        if (System.getProperties().containsKey("baseurl")) {
+            baseUrl = System.getProperties().getProperty("baseurl");
+        } else {
+            // needed for heroku
 
-        String host = System.getenv().get("HOST");
-        if (host == null || host.length()==0) host = "localhost";
+            String port = System.getenv().get("PORT");
+            if (port == null || port.length()==0) port = "8080";
 
-        final HttpServer server = startServer(URI.create("http://"+host+":"+port+"/api"));
+            String host = System.getenv().get("HOST");
+            if (host == null || host.length()==0) host = "localhost";
+
+            baseUrl = "http://"+host+":"+port+"/api";
+        }
+
+
+
+        final HttpServer server = startServer(URI.create(baseUrl));
 
         synchronized (Main.class) { Main.class.wait(); }
         server.stop();
