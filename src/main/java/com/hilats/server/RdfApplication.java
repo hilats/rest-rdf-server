@@ -15,11 +15,13 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.core.io.Resource;
 
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -43,7 +45,7 @@ public class RdfApplication
     @Autowired
     HilatsUserService userService;
 
-    protected File initData;
+    protected Resource initData;
     protected String initMimeType;
 
     protected RdfApplication(TripleStore store, Object... components) {
@@ -70,7 +72,7 @@ public class RdfApplication
         });
     }
 
-    protected RdfApplication(TripleStore store, File initData, String mimeType, Object... components) throws FileNotFoundException {
+    protected RdfApplication(TripleStore store, Resource initData, String mimeType, Object... components) throws FileNotFoundException {
         this (store, components);
 
         this.initData = initData;
@@ -82,7 +84,7 @@ public class RdfApplication
         if (initData != null) {
             RepoConnection conn = connFactory.getCurrentConnection();
             try {
-                    store.addStatements(new FileInputStream(initData), initMimeType);
+                    store.addStatements(initData.getInputStream(), initMimeType);
             } finally {
                 connFactory.closeCurrentConnection();
             }
