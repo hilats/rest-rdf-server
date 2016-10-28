@@ -1,0 +1,17 @@
+{"authProviders":{
+    "google" : {
+        "client_id" : "456026922964-9sjvu7cubkd9nb1d5u2r8gnvm8p70om8.apps.googleusercontent.com",
+        "client_secret" : "o8ZuNNP56rap-io6DrwgxJwf"
+    },
+
+    "facebook" : {
+        "client_id" : "540932659407006",
+        "client_secret" : "6609f0aec8aacf71ea5f7ffca1694dd1"
+    },
+
+    "linkedin" : {
+        "client_id" : "81j1tjve0kmu64",
+        "client_secret" : "lhiB122F6tPmCzHW"
+    }
+}}
+

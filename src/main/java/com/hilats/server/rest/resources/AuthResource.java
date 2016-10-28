@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
@@ -23,10 +24,12 @@ import com.hilats.server.spring.jwt.*;
 import com.hilats.server.spring.jwt.services.AuthProfile;
 import com.hilats.server.spring.jwt.services.FacebookProfile;
 import com.hilats.server.spring.jwt.services.GoogleProfile;
+import com.hilats.server.spring.jwt.services.LinkedinProfile;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.hibernate.validator.constraints.NotBlank;
 
+import org.jvnet.hk2.annotations.Optional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
@@ -44,13 +47,38 @@ public class AuthResource
 
     final Client client = new JerseyClientBuilder().build();
 
-    public static final String CLIENT_ID_KEY = "client_id", REDIRECT_URI_KEY = "redirect_uri",
-            CLIENT_SECRET = "client_secret", CODE_KEY = "code", GRANT_TYPE_KEY = "grant_type",
-            AUTH_CODE = "authorization_code";
+    public static final String CLIENT_ID_KEY = "client_id",
+                               REDIRECT_URI_KEY = "redirect_uri",
+                               CLIENT_SECRET = "client_secret",
+                               CODE_KEY = "code",
+                               GRANT_TYPE_KEY = "grant_type",
+                               AUTH_CODE = "authorization_code";
 
 
     public AuthResource() {
         client.register(JacksonFeature.class);
+    }
+
+    @GET
+    @Path("providers")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Object getAuthProviders(@Context final HttpServletRequest request)
+    {
+        Map providers =
+                getApplication().getConfig().authProviders
+                .entrySet().stream()
+                .collect (
+                        Collectors.toMap(
+                                Map.Entry::getKey,
+                                providerConf -> providerConf.getValue().entrySet().stream()
+                                        .filter(e -> e.getKey().equals("client_id"))
+                                        .collect(Collectors.toMap(
+                                                        Map.Entry::getKey,
+                                                        providerConfItem -> providerConfItem.getValue())
+                                        ))
+                );
+
+        return providers;
     }
 
     @GET
@@ -81,6 +109,52 @@ public class AuthResource
     }
 
 
+    @POST
+    @Path("linkedin")
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response loginLinkedIn(@Valid final Payload payload,
+                                  @Context final HttpServletRequest request) throws ParseException {
+        final String accessTokenUrl = "https://www.linkedin.com/uas/oauth2/accessToken";
+        final String peopleApiUrl = "https://api.linkedin.com/v1/people/~:(id,first-name,last-name,email-address,picture-url)";
+
+        Map<String,String> linkedinConf = getApplication().getConfig().authProviders.get("linkedin");
+        if (linkedinConf == null)
+            return Response.serverError().status(Status.BAD_REQUEST).entity("OAuth provider not found: linkedin").build();
+
+
+        Response response;
+
+        // Step 1. Exchange authorization code for access token.
+
+        final MultivaluedMap<String, String> accessData = new MultivaluedHashMap<String, String>();
+        accessData.add(CLIENT_ID_KEY, payload.getClientId());
+        accessData.add(REDIRECT_URI_KEY, payload.getRedirectUri());
+        accessData.add(CLIENT_SECRET, linkedinConf.get("client_secret"));
+        accessData.add(CODE_KEY, payload.getCode());
+        accessData.add(GRANT_TYPE_KEY, AUTH_CODE);
+        response = client.target(accessTokenUrl).request().post(Entity.form(accessData));
+        Map<String, Object> credentials = response.readEntity(Map.class);
+        accessData.clear();
+
+
+        final String accessToken = (String) credentials.get("access_token");
+        response =
+                client.target(peopleApiUrl)
+                        .queryParam("oauth2_access_token", accessToken)
+                        .queryParam("format", "json")
+                        .request("text/plain")
+                        .get();
+
+        final Map<String, Object> userInfo = response.readEntity(Map.class);
+
+        LinkedinProfile profile = new LinkedinProfile(
+                credentials,
+                userInfo);
+
+        // Step 3. Process the authenticated the user.
+        return processUser(request, profile);
+    }
+
 
 
     @POST
@@ -91,6 +165,11 @@ public class AuthResource
         final String accessTokenUrl = "https://graph.facebook.com/v2.3/oauth/access_token";
         final String graphApiUrl = "https://graph.facebook.com/v2.3/me";
 
+        Map<String,String> facebookConf = getApplication().getConfig().authProviders.get("facebook");
+        if (facebookConf == null)
+            return Response.serverError().status(Status.BAD_REQUEST).entity("OAuth provider not found: facebook").build();
+
+
         Response response;
 
         // Step 1. Exchange authorization code for access token.
@@ -100,7 +179,7 @@ public class AuthResource
                         .queryParam("scope", "email,public_profile")
                         .queryParam(CLIENT_ID_KEY, payload.getClientId())
                         .queryParam(REDIRECT_URI_KEY, payload.getRedirectUri())
-                        .queryParam(CLIENT_SECRET, "6609f0aec8aacf71ea5f7ffca1694dd1")
+                        .queryParam(CLIENT_SECRET, facebookConf.get("client_secret"))
                         .queryParam(CODE_KEY, payload.getCode())
                         .request("text/plain")
                         .accept(MediaType.TEXT_PLAIN).get();
@@ -134,11 +213,15 @@ public class AuthResource
         final String peopleApiUrl = "https://www.googleapis.com/plus/v1/people/me/openIdConnect";
         Response response;
 
+        Map<String,String> googleConf = getApplication().getConfig().authProviders.get("google");
+        if (googleConf == null)
+            return Response.serverError().status(Status.BAD_REQUEST).entity("OAuth provider not found: google").build();
+
         // Step 1. Exchange authorization code for access token.
         final MultivaluedMap<String, String> accessData = new MultivaluedHashMap<String, String>();
         accessData.add(CLIENT_ID_KEY, payload.getClientId());
         accessData.add(REDIRECT_URI_KEY, payload.getRedirectUri());
-        accessData.add(CLIENT_SECRET, "o8ZuNNP56rap-io6DrwgxJwf" /* secrets.getGoogle() */);
+        accessData.add(CLIENT_SECRET, googleConf.get("client_secret"));
         accessData.add(CODE_KEY, payload.getCode());
         accessData.add(GRANT_TYPE_KEY, AUTH_CODE);
         response = client.target(accessTokenUrl).request().post(Entity.form(accessData));
@@ -181,6 +264,9 @@ public class AuthResource
         @NotBlank
         String code;
 
+        @Optional
+        String state;
+
         public String getClientId() {
             return clientId;
         }
@@ -191,6 +277,10 @@ public class AuthResource
 
         public String getCode() {
             return code;
+        }
+
+        public String getState() {
+            return state;
         }
     }
 

@@ -8,6 +8,7 @@
   http://www.springframework.org/schema/context/spring-context.xsd"
         >
 
+    <bean id="serverHomeDir" class="com.hilats.server.ServerHomeDir"/>
     <import resource="hilats-security-mongo-beans.xml"/>
     <import resource="hilats-rdf-server.xml"/>
 

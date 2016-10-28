@@ -1,5 +1,6 @@
 package com.hilats.server;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hilats.server.sesame.JSONStatementsReaderWriter;
 import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
@@ -35,6 +36,11 @@ public class RdfApplication
     implements ApplicationContextAware, InitializingBean
 {
     TripleStore store;
+
+    @Autowired
+    ServerHomeDir homedir;
+
+    ApplicationConfig config;
 
     @Autowired
     RepoConnectionFactory connFactory;
@@ -81,10 +87,23 @@ public class RdfApplication
 
     @Override
     public void afterPropertiesSet() throws Exception {
+
+        ObjectMapper mapper = new ObjectMapper();
+
+        File configFile = new File(homedir.getRootDir(), "server.json");
+        if (configFile.exists())
+            config = mapper.readValue(configFile, ApplicationConfig.class);
+        else
+            mapper.writeValue(configFile, config = new ApplicationConfig());
+
+        initData();
+    }
+
+    public void initData() throws Exception {
         if (initData != null) {
             RepoConnection conn = connFactory.getCurrentConnection();
             try {
-                    store.addStatements(initData.getInputStream(), initMimeType);
+                store.addStatements(initData.getInputStream(), initMimeType);
             } finally {
                 connFactory.closeCurrentConnection();
             }
@@ -110,6 +129,8 @@ public class RdfApplication
         tokenService = applicationContext.getBean(TokenAuthenticationService.class);
 
         userService = applicationContext.getBean(HilatsUserService.class);
+
+        homedir = applicationContext.getBean(ServerHomeDir.class);
     }
 
     public TripleStore getStore() {
@@ -126,5 +147,13 @@ public class RdfApplication
 
     protected RepoConnectionFactory getConnFactory() {
         return connFactory;
+    }
+
+    public ServerHomeDir getHomedir() {
+        return homedir;
+    }
+
+    public ApplicationConfig getConfig() {
+        return config;
     }
 }
