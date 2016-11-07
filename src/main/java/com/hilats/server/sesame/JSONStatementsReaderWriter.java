@@ -36,10 +36,20 @@ public class JSONStatementsReaderWriter
     public static Map PARSE_CONTEXT;
     public static Map JSONLD_FRAME;
 
+    private JsonLdOptions jsonldOptions = new JsonLdOptions();
 
     public JSONStatementsReaderWriter(InputStream context, InputStream frame) throws IOException {
+        // TODO very bad practice - make these members non static
         PARSE_CONTEXT = (Map)JsonUtils.fromInputStream(context);
         JSONLD_FRAME = (Map)JsonUtils.fromInputStream(frame);
+    }
+
+    public JsonLdOptions getJsonldOptions() {
+        return jsonldOptions;
+    }
+
+    public void setJsonldOptions(JsonLdOptions jsonldOptions) {
+        this.jsonldOptions = jsonldOptions;
     }
 
     @Override
@@ -58,23 +68,23 @@ public class JSONStatementsReaderWriter
 
                 ContextStatementCollector collector = new ContextStatementCollector(null);
                 final SesameTripleCallback callback = new SesameTripleCallback(collector);
-                final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
-                options.useNamespaces = true;
+                //final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
+                //options.useNamespaces = true;
                 Object jsonObj = JsonUtils.fromInputStream(entityStream);
                 Map jsonld = new HashMap();
                 jsonld.put("@graph", jsonObj);
                 jsonld.put("@context", JSONLD_FRAME.get("@context"));
-                Object flattened = JsonLdProcessor.flatten(jsonld, options);
-                JsonLdProcessor.toRDF(flattened, callback, options);
+                Object flattened = JsonLdProcessor.flatten(jsonld, jsonldOptions);
+                JsonLdProcessor.toRDF(flattened, callback, jsonldOptions);
 
                 return new LinkedHashModel(collector.getStatements());
             } else if (JSONLD.isCompatible(mediaType)) {
                 ContextStatementCollector collector = new ContextStatementCollector(null);
                 final SesameTripleCallback callback = new SesameTripleCallback(collector);
-                final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
-                options.useNamespaces = true;
+                //final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
+                //options.useNamespaces = true;
                 Object jsonObj = JsonUtils.fromInputStream(entityStream);
-                JsonLdProcessor.toRDF(jsonObj, callback, options);
+                JsonLdProcessor.toRDF(jsonObj, callback, jsonldOptions);
 
                 return new LinkedHashModel(collector.getStatements());
             } else
@@ -100,7 +110,7 @@ public class JSONStatementsReaderWriter
         try {
             Object statements = JsonLdProcessor.fromRDF(model, new SesameRDFParser());
             if (MediaType.APPLICATION_JSON_TYPE.equals(mediaType)) {
-                Map output = JsonLdProcessor.frame(statements, JSONLD_FRAME, new JsonLdOptions());
+                Map output = JsonLdProcessor.frame(statements, JSONLD_FRAME, jsonldOptions);
 
                 List graph = (List)output.get("@graph");
 
@@ -113,7 +123,7 @@ public class JSONStatementsReaderWriter
                 else
                     JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), graph);
             } else if (JSONLD.equals(mediaType)) {
-                Map output = JsonLdProcessor.compact(statements, PARSE_CONTEXT, new JsonLdOptions());
+                Map output = JsonLdProcessor.compact(statements, PARSE_CONTEXT, jsonldOptions);
                 JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), output);
             } else
                 throw new WebApplicationException("Unsupported media type: "+mediaType);
