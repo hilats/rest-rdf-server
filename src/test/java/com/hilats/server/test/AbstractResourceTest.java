@@ -52,6 +52,13 @@ public abstract class AbstractResourceTest {
         server.stop();
     }
 
+    public Response postWithSuccess(String path, Entity content) {
+        Response postResponse = target.path(path).request().post(content);
+        org.junit.Assert.assertEquals("Wrong HTTP status message : " + postResponse.getStatus() + "\n" + postResponse.getStatusInfo().getReasonPhrase(), Response.Status.Family.SUCCESSFUL, postResponse.getStatusInfo().getFamily());
+
+        return postResponse;
+    }
+
     public Response putWithSuccess(String path, Entity content) {
         Response putResponse = target.path(path).request().put(content);
         org.junit.Assert.assertEquals("Wrong HTTP status message : " + putResponse.getStatus() + "\n" + putResponse.getStatusInfo().getReasonPhrase(), Response.Status.Family.SUCCESSFUL, putResponse.getStatusInfo().getFamily());

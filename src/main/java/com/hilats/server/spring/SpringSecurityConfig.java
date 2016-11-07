@@ -88,10 +88,10 @@ public class SpringSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        if (securityConfigurer != null) securityConfigurer.configure(auth);
+        if (securityConfigurer != null)
+            securityConfigurer.configure(auth);
 
-        auth
-                .userDetailsService(userDetailsService()).passwordEncoder(new BCryptPasswordEncoder());
+        auth.userDetailsService(userDetailsService()).passwordEncoder(new BCryptPasswordEncoder());
     }
 
 
