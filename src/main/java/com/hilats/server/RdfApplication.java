@@ -51,7 +51,7 @@ public class RdfApplication
     @Autowired
     HilatsUserService userService;
 
-    protected Resource initData;
+    protected Resource[] initData;
     protected String initMimeType;
 
     protected RdfApplication(TripleStore store, Object... components) {
@@ -78,7 +78,7 @@ public class RdfApplication
         });
     }
 
-    protected RdfApplication(TripleStore store, Resource initData, String mimeType, Object... components) throws FileNotFoundException {
+    protected RdfApplication(TripleStore store, Resource[] initData, String mimeType, Object... components) throws FileNotFoundException {
         this (store, components);
 
         this.initData = initData;
@@ -103,7 +103,8 @@ public class RdfApplication
         if (initData != null) {
             RepoConnection conn = connFactory.getCurrentConnection();
             try {
-                store.addStatements(initData.getInputStream(), initMimeType);
+                for (Resource res : initData)
+                    store.addStatements(res.getInputStream(), initMimeType);
             } finally {
                 connFactory.closeCurrentConnection();
             }
