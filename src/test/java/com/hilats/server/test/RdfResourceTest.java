@@ -1,13 +1,22 @@
 package com.hilats.server.test;
 
+import com.hilats.server.Main;
+import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.Assert;
 import org.junit.Test;
 
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.Response;
+import java.io.IOException;
+import java.net.URI;
 
 public class RdfResourceTest extends AbstractResourceTest
 {
+
+    @Override
+    public HttpServer setupServer() throws IOException {
+        return Main.startServer(URI.create(Main.BASE_URI), new String[]{"sesame-application-test-ctx.xml", "jersey-spring-applicationContext.xml"});
+    }
 
     @Test
     public void testGetJsonld() {

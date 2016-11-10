@@ -16,7 +16,7 @@ public class JeanResourceTest extends AbstractResourceTest
 
     @Override
     public HttpServer setupServer() throws IOException {
-        return Main.startServer(URI.create(Main.BASE_URI), new String[] {"jena-application-test-ctx.xml", "jersey-spring-applicationContext.xml"});
+        return Main.startServer(URI.create(Main.BASE_URI), new String[] {"sesame-application-test-ctx.xml", "jersey-spring-applicationContext.xml"});
     }
 
     @Test

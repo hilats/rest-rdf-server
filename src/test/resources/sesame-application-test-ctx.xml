@@ -10,8 +10,7 @@
 
     <bean id="serverHomeDir" class="com.hilats.server.ServerHomeDir"/>
     <import resource="hilats-security-test-beans.xml"/>
-    <import resource="hilats-jena-beans.xml"/>
-    <import resource="hilats-security-beans.xml"/>
+    <import resource="hilats-rdf-server.xml"/>
 
     <bean name="rdfApplication" class="com.hilats.server.RdfApplication">
         <constructor-arg name="store" ref="tripleStore"/>
