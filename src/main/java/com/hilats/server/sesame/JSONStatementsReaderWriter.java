@@ -21,6 +21,7 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.MessageBodyWriter;
 import java.io.*;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
 
@@ -28,20 +29,21 @@ import java.util.*;
  * Created by pduchesne on 1/08/14.
  */
 public class JSONStatementsReaderWriter
-    implements MessageBodyReader<Model>, MessageBodyWriter<Model> {
+    implements MessageBodyReader<TypedModel>, MessageBodyWriter<TypedModel> {
 
     MediaType JSONLD = MediaType.valueOf("application/ld+json");
     List<MediaType> supportedTypes = Arrays.asList(MediaType.APPLICATION_JSON_TYPE, JSONLD);
 
     public static Map PARSE_CONTEXT;
-    public static Map JSONLD_FRAME;
+    public static Map<String, Map> JSONLD_FRAMES = new HashMap();
 
     private JsonLdOptions jsonldOptions = new JsonLdOptions();
 
-    public JSONStatementsReaderWriter(InputStream context, InputStream frame) throws IOException {
-        // TODO very bad practice - make these members non static
+    public JSONStatementsReaderWriter(InputStream context, Map<String, InputStream> frameResources) throws IOException {
         PARSE_CONTEXT = (Map)JsonUtils.fromInputStream(context);
-        JSONLD_FRAME = (Map)JsonUtils.fromInputStream(frame);
+
+        for (Map.Entry<String, InputStream> frameDef: frameResources.entrySet())
+            JSONLD_FRAMES.put(frameDef.getKey(), (Map)JsonUtils.fromInputStream(frameDef.getValue()));
     }
 
     public JsonLdOptions getJsonldOptions() {
@@ -55,14 +57,16 @@ public class JSONStatementsReaderWriter
     @Override
     public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         if (type != null
-            && Model.class.isAssignableFrom(type))
+            && TypedModel.class.isAssignableFrom(type))
             for (MediaType st : supportedTypes) if (st.isCompatible(mediaType)) return true;
 
         return false;
     }
 
     @Override
-    public Model readFrom(Class<Model> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
+    public TypedModel readFrom(Class<TypedModel> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
+        String typename = ((ParameterizedType) genericType).getActualTypeArguments()[0].getTypeName();
+
         try {
             if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
 
@@ -73,11 +77,11 @@ public class JSONStatementsReaderWriter
                 Object jsonObj = JsonUtils.fromInputStream(entityStream);
                 Map jsonld = new HashMap();
                 jsonld.put("@graph", jsonObj);
-                jsonld.put("@context", JSONLD_FRAME.get("@context"));
+                jsonld.put("@context", JSONLD_FRAMES.get(typename).get("@context"));
                 Object flattened = JsonLdProcessor.flatten(jsonld, jsonldOptions);
                 JsonLdProcessor.toRDF(flattened, callback, jsonldOptions);
 
-                return new LinkedHashModel(collector.getStatements());
+                return new TypedModel(new LinkedHashModel(collector.getStatements()));
             } else if (JSONLD.isCompatible(mediaType)) {
                 ContextStatementCollector collector = new ContextStatementCollector(null);
                 final SesameTripleCallback callback = new SesameTripleCallback(collector);
@@ -86,7 +90,7 @@ public class JSONStatementsReaderWriter
                 Object jsonObj = JsonUtils.fromInputStream(entityStream);
                 JsonLdProcessor.toRDF(jsonObj, callback, jsonldOptions);
 
-                return new LinkedHashModel(collector.getStatements());
+                return new TypedModel(new LinkedHashModel(collector.getStatements()));
             } else
                 throw new WebApplicationException("Unsupported media type: "+mediaType);
         } catch (JsonLdError jsonLdError) {
@@ -101,16 +105,18 @@ public class JSONStatementsReaderWriter
     }
 
     @Override
-    public long getSize(Model statements, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
+    public long getSize(TypedModel statements, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
         return -1;
     }
 
     @Override
-    public void writeTo(Model model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+    public void writeTo(TypedModel model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+        String typename = ((ParameterizedType) genericType).getActualTypeArguments()[0].getTypeName();
+
         try {
-            Object statements = JsonLdProcessor.fromRDF(model, new SesameRDFParser());
+            Object statements = JsonLdProcessor.fromRDF(model.getModel(), new SesameRDFParser());
             if (MediaType.APPLICATION_JSON_TYPE.equals(mediaType)) {
-                Map output = JsonLdProcessor.frame(statements, JSONLD_FRAME, jsonldOptions);
+                Map output = JsonLdProcessor.frame(statements, JSONLD_FRAMES.get(typename), jsonldOptions);
 
                 List graph = (List)output.get("@graph");
 
