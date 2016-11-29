@@ -65,7 +65,10 @@ public class JSONStatementsReaderWriter
 
     @Override
     public TypedModel readFrom(Class<TypedModel> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
-        String typename = ((ParameterizedType) genericType).getActualTypeArguments()[0].getTypeName();
+        String typename =
+                (genericType instanceof ParameterizedType) ?
+                    ((ParameterizedType) genericType).getActualTypeArguments()[0].getTypeName():
+                    genericType.getTypeName();
 
         try {
             if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
@@ -111,7 +114,10 @@ public class JSONStatementsReaderWriter
 
     @Override
     public void writeTo(TypedModel model, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-        String typename = ((ParameterizedType) genericType).getActualTypeArguments()[0].getTypeName();
+        String typename =
+                (genericType instanceof ParameterizedType) ?
+                        ((ParameterizedType) genericType).getActualTypeArguments()[0].getTypeName():
+                        genericType.getTypeName();
 
         try {
             Object statements = JsonLdProcessor.fromRDF(model.getModel(), new SesameRDFParser());
