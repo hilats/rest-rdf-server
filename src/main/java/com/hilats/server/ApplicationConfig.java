@@ -13,6 +13,7 @@ import java.util.Map;
 public class ApplicationConfig {
 
     public int proxyPort = -1;
+    public String proxyAllowedOrigin = null;
 
     public Map<String, Map<String, String>> authProviders = new HashMap<String, Map<String, String>>();
 

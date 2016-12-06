@@ -33,6 +33,7 @@ public class RestRDFServer {
     public static Logger log = LoggerFactory.getLogger(RestRDFServer.class);
 
     private URI serverURI;
+
     private HttpServer restServer;
     private HttpServer proxyServer;
     private ApplicationContext restSpringContext;
@@ -125,11 +126,13 @@ public class RestRDFServer {
 
 
     public void startProxyServer() throws IOException, URISyntaxException {
+        ApplicationConfig config = this.restSpringContext.getBean(RdfApplication.class).getConfig();
+
         int port = serverURI.getPort()+1;
-        if (this.restSpringContext.getBean(RdfApplication.class).getConfig().proxyPort != -1)
-            port = this.restSpringContext.getBean(RdfApplication.class).getConfig().proxyPort;
+        if (config.proxyPort != -1)
+            port = config.proxyPort;
         else
-            this.restSpringContext.getBean(RdfApplication.class).getConfig().proxyPort = port;
+            config.proxyPort = port;
 
         URI uri = new URI(serverURI.getScheme(), serverURI.getUserInfo(), serverURI.getHost(), port, serverURI.getPath(), serverURI.getQuery(), serverURI.getFragment());
 
@@ -150,13 +153,19 @@ public class RestRDFServer {
             @Override
             public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 
+
                 String origin = ((HttpServletRequest) request).getHeader("Origin");
 
-                if (origin == null || (origin.startsWith(uri.toString()) || origin.contains("localhost"))) {
+                if (origin == null || origin.contains("localhost")) {
+                    // for test & debug purposes
                     ((HttpServletResponse) response).setHeader("Access-Control-Allow-Origin", "*");
-                    ((HttpServletResponse) response).setHeader("Access-Control-Allow-Headers", "Range, X-Requested-With");
-                    ((HttpServletResponse) response).setHeader("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
                 }
+                else if (config.proxyAllowedOrigin != null) {
+                    ((HttpServletResponse) response).setHeader("Access-Control-Allow-Origin", config.proxyAllowedOrigin);
+                }
+
+                ((HttpServletResponse) response).setHeader("Access-Control-Allow-Headers", "Range, X-Requested-With");
+                ((HttpServletResponse) response).setHeader("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
 
                 chain.doFilter(request, response);
             }

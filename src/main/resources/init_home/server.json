@@ -1,5 +1,6 @@
 {
     //"proxyPort" : 8081,
+    //"proxyAllowedOrigin" : "",
     "authProviders":{
         "google" : {
             "client_id" : "456026922964-9sjvu7cubkd9nb1d5u2r8gnvm8p70om8.apps.googleusercontent.com",
