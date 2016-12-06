@@ -1,6 +1,7 @@
 package com.hilats.server.test;
 
 import com.hilats.server.Main;
+import com.hilats.server.RestRDFServer;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,8 +15,10 @@ public class RdfResourceTest extends AbstractResourceTest
 {
 
     @Override
-    public HttpServer setupServer() throws IOException {
-        return Main.startServer(URI.create(Main.BASE_URI), new String[]{"sesame-application-test-ctx.xml", "jersey-spring-applicationContext.xml"});
+    public RestRDFServer setupServer() throws IOException {
+        RestRDFServer server = new RestRDFServer(URI.create(Main.BASE_URI));
+        server.startServer(URI.create(Main.BASE_URI), new String[]{"sesame-application-test-ctx.xml", "jersey-spring-applicationContext.xml"});
+        return server;
     }
 
     @Test

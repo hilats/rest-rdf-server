@@ -12,6 +12,8 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApplicationConfig {
 
+    public int proxyPort = -1;
+
     public Map<String, Map<String, String>> authProviders = new HashMap<String, Map<String, String>>();
 
 }

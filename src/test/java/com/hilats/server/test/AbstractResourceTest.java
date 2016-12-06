@@ -1,6 +1,7 @@
 package com.hilats.server.test;
 
 import com.hilats.server.Main;
+import com.hilats.server.RestRDFServer;
 import junit.framework.Assert;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.client.authentication.HttpAuthenticationFeature;
@@ -16,12 +17,13 @@ import javax.ws.rs.core.Response;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 
 import static org.junit.Assert.assertEquals;
 
 public abstract class AbstractResourceTest {
 
-    protected HttpServer server;
+    protected RestRDFServer server;
     protected WebTarget target;
 
     @Before
@@ -43,8 +45,10 @@ public abstract class AbstractResourceTest {
         target = c.target(Main.BASE_URI+"/api");
     }
 
-    public HttpServer setupServer() throws IOException {
-        return Main.startServer(URI.create(Main.BASE_URI));
+    public RestRDFServer setupServer() throws IOException, URISyntaxException {
+        RestRDFServer server = new RestRDFServer(URI.create(Main.BASE_URI));
+        server.startServer();
+        return server;
     }
 
     @After
