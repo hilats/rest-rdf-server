@@ -176,8 +176,12 @@ public class RestRDFServer {
         });
         filterReg.addMappingForUrlPatterns(EnumSet.allOf(DispatcherType.class), true, "/*");
 
-        ServletRegistration reg = proxyCtx.addServlet("ProxyServlet", new URITemplateProxyServlet());
+        ServletRegistration reg = proxyCtx.addServlet("ProxyServlet", new HilatsProxyServlet());
         reg.setInitParameter("targetUri", "{_uri}");
+        // set agressive timeouts to prevent proxy threads jams
+        reg.setInitParameter("httpClient.socketTimeout", "5000");
+        reg.setInitParameter("httpClient.connectionTimeout", "2000");
+        reg.setInitParameter("httpClient.connectionRequestTimeout", "1000");
         reg.addMapping("/proxy");
 
         proxyCtx.deploy(server);
