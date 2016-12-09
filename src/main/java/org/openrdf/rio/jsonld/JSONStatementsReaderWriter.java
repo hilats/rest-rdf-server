@@ -1,12 +1,11 @@
-package com.hilats.server.sesame;
+package org.openrdf.rio.jsonld;
 
 import com.github.jsonldjava.core.JsonLdError;
 import com.github.jsonldjava.core.JsonLdOptions;
 import com.github.jsonldjava.core.JsonLdProcessor;
-import com.github.jsonldjava.sesame.SesameRDFParser;
-import com.github.jsonldjava.sesame.SesameTripleCallback;
 import com.github.jsonldjava.utils.JsonUtils;
 import com.hilats.server.rest.resources.Unique;
+import com.hilats.server.sesame.TypedModel;
 import org.openrdf.model.Model;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.query.GraphQueryResult;
@@ -74,7 +73,7 @@ public class JSONStatementsReaderWriter
             if (MediaType.APPLICATION_JSON_TYPE.isCompatible(mediaType)) {
 
                 ContextStatementCollector collector = new ContextStatementCollector(null);
-                final SesameTripleCallback callback = new SesameTripleCallback(collector);
+                final JSONLDInternalTripleCallback callback = new JSONLDInternalTripleCallback(collector);
                 //final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
                 //options.useNamespaces = true;
                 Object jsonObj = JsonUtils.fromInputStream(entityStream);
@@ -87,7 +86,7 @@ public class JSONStatementsReaderWriter
                 return new TypedModel(new LinkedHashModel(collector.getStatements()));
             } else if (JSONLD.isCompatible(mediaType)) {
                 ContextStatementCollector collector = new ContextStatementCollector(null);
-                final SesameTripleCallback callback = new SesameTripleCallback(collector);
+                final JSONLDInternalTripleCallback callback = new JSONLDInternalTripleCallback(collector);
                 //final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
                 //options.useNamespaces = true;
                 Object jsonObj = JsonUtils.fromInputStream(entityStream);
@@ -120,7 +119,7 @@ public class JSONStatementsReaderWriter
                         genericType.getTypeName();
 
         try {
-            Object statements = JsonLdProcessor.fromRDF(model.getModel(), new SesameRDFParser());
+            Object statements = JsonLdProcessor.fromRDF(model.getModel(), new JSONLDInternalRDFParser());
             if (MediaType.APPLICATION_JSON_TYPE.equals(mediaType)) {
                 Map output = JsonLdProcessor.frame(statements, JSONLD_FRAMES.get(typename), jsonldOptions);
 

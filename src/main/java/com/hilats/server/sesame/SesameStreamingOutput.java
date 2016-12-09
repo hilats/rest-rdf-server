@@ -1,10 +1,8 @@
 package com.hilats.server.sesame;
 
-import com.github.jsonldjava.sesame.SesameJSONLDSettings;
-import com.github.jsonldjava.sesame.SesameJSONLDWriter;
+import org.openrdf.rio.jsonld.SesameJSONLDSettings;
 import org.openrdf.model.Statement;
 import org.openrdf.query.GraphQueryResult;
-import org.openrdf.query.QueryEvaluationException;
 import org.openrdf.query.QueryResults;
 import org.openrdf.rio.RDFFormat;
 import org.openrdf.rio.RDFHandlerException;
@@ -17,7 +15,6 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
