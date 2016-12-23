@@ -9,6 +9,8 @@ import org.glassfish.jersey.process.internal.RequestScoped;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.server.ServerProperties;
 import org.glassfish.jersey.server.filter.RolesAllowedDynamicFeature;
+import org.glassfish.jersey.server.spi.Container;
+import org.glassfish.jersey.server.spi.ContainerLifecycleListener;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,26 @@ public class RdfApplication
                         .in(RequestScoped.class); // necessary to have the .dispose() method called
             }
         });
+
+        // Trigger initData only after servlet is loaded
+        register(new ContainerLifecycleListener()
+        {
+            @Override
+            public void onStartup(Container container)
+            {
+                try {
+                    RdfApplication.this.initData();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onReload(Container container) {}
+
+            @Override
+            public void onShutdown(Container container) {}
+        });
     }
 
     protected RdfApplication(TripleStore store, Resource[] initData, String mimeType, Object... components) throws FileNotFoundException {
@@ -91,7 +113,6 @@ public class RdfApplication
         else
             mapper.writeValue(configFile, config = new ApplicationConfig());
 
-        initData();
     }
 
     public void initData() throws Exception {
