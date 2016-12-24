@@ -9,8 +9,10 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.params.HttpParams;
 import org.mitre.dsmiley.httpproxy.URITemplateProxyServlet;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * @author pduchesne
@@ -45,6 +47,16 @@ public class HilatsProxyServlet
                 // copy header only if not already set
                 // this can be a problem f.i. for CKAN that sets Allow-Origin header, causing duplicate values
                 copyResponseHeader(servletRequest, servletResponse, header);
+        }
+    }
+
+    @Override
+    protected void service(HttpServletRequest servletRequest, HttpServletResponse servletResponse) throws ServletException, IOException {
+        super.service(servletRequest, servletResponse);
+
+        if (servletResponse.getStatus() == 400 && "OPTIONS".equals(servletRequest.getMethod())) {
+            // let's assume this is a preflight request and the proxied server can't handle it - vouch for him
+            servletResponse.setStatus(200);
         }
     }
 }
