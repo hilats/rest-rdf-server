@@ -1,11 +1,16 @@
 package com.hilats.server;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.params.HttpParams;
 import org.mitre.dsmiley.httpproxy.URITemplateProxyServlet;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author pduchesne
@@ -30,5 +35,16 @@ public class HilatsProxyServlet
                 .build();
 
         return httpclient;
+    }
+
+    /** Copy proxied response headers back to the servlet client. */
+    protected void copyResponseHeaders(HttpResponse proxyResponse, HttpServletRequest servletRequest,
+                                       HttpServletResponse servletResponse) {
+        for (Header header : proxyResponse.getAllHeaders()) {
+            if (servletResponse.getHeader(header.getName()) == null)
+                // copy header only if not already set
+                // this can be a problem f.i. for CKAN that sets Allow-Origin header, causing duplicate values
+                copyResponseHeader(servletRequest, servletResponse, header);
+        }
     }
 }
