@@ -164,7 +164,7 @@ public class RestRDFServer {
                     ((HttpServletResponse) response).setHeader("Access-Control-Allow-Origin", config.proxyAllowedOrigin);
                 }
 
-                ((HttpServletResponse) response).setHeader("Access-Control-Allow-Headers", "Range, X-Requested-With");
+                ((HttpServletResponse) response).setHeader("Access-Control-Allow-Headers", ((HttpServletRequest) request).getHeader("Access-Control-Request-Headers"));
                 ((HttpServletResponse) response).setHeader("Access-Control-Expose-Headers", "Accept-Ranges, Content-Encoding, Content-Length, Content-Range");
 
                 chain.doFilter(request, response);
