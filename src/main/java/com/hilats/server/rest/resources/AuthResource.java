@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,12 +20,17 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.scribejava.apis.TwitterApi;
+import com.github.scribejava.core.builder.ServiceBuilder;
+import com.github.scribejava.core.model.OAuth1AccessToken;
+import com.github.scribejava.core.model.OAuth1RequestToken;
+import com.github.scribejava.core.model.OAuthRequest;
+import com.github.scribejava.core.model.Verb;
+import com.github.scribejava.core.oauth.OAuth10aService;
 import com.hilats.server.spring.jwt.*;
 
-import com.hilats.server.spring.jwt.services.AuthProfile;
-import com.hilats.server.spring.jwt.services.FacebookProfile;
-import com.hilats.server.spring.jwt.services.GoogleProfile;
-import com.hilats.server.spring.jwt.services.LinkedinProfile;
+import com.hilats.server.spring.jwt.services.*;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.hibernate.validator.constraints.NotBlank;
@@ -250,6 +256,61 @@ public class AuthResource
     }
 
 
+    @POST
+    @Path("twitter")
+    public Response loginTwitter(@Valid final OAuth1Payload payload,
+                                 @Context final HttpServletRequest request) throws ParseException, IOException, ExecutionException, InterruptedException {
+        final String profileUrl = "https://api.twitter.com/1.1/account/verify_credentials.json?include_email=true";
+
+        Response response;
+
+        Map<String,String> twitterConf = getApplication().getConfig().authProviders.get("twitter");
+        if (twitterConf == null)
+            return Response.serverError().status(Status.BAD_REQUEST).entity("OAuth provider not found: google").build();
+
+        final OAuth10aService service = new ServiceBuilder()
+                .apiKey(twitterConf.get("client_id"))
+                .apiSecret(twitterConf.get("client_secret"))
+                .callback(payload.getRedirectUri()==null?"oob":payload.getRedirectUri())
+                .build(TwitterApi.instance());
+
+
+        // Part 1 of 2: Initial request from Satellizer.
+        if (payload.getOauth_token() == null || payload.getOauth_verifier() == null) {
+            final OAuth1RequestToken requestToken = service.getRequestToken();
+
+            final MultivaluedMap<String, String> oauth_token_response = new MultivaluedHashMap<String, String>();
+            oauth_token_response.add("oauth_token", requestToken.getToken());
+            oauth_token_response.add("oauth_token_secret", requestToken.getTokenSecret());
+
+            return Response.ok().entity(oauth_token_response).build();
+        } else {
+            // Part 2 of 2: Second request after Authorize app is clicked.
+
+            final OAuth1AccessToken accessToken = service.getAccessToken(new OAuth1RequestToken(payload.getOauth_token(), payload.getOauth_verifier()), payload.getOauth_verifier());
+
+            final OAuthRequest profileRequest = new OAuthRequest(Verb.GET, profileUrl);
+            service.signRequest(accessToken, profileRequest);
+            final com.github.scribejava.core.model.Response profileResponse = service.execute(profileRequest);
+
+
+            Map<String, Object> accessTokens = new HashMap<String, Object>();
+            accessTokens.put("oauth_token", payload.getOauth_token());
+            accessTokens.put("oauth_token_secret", payload.getOauth_verifier());
+
+            Map<String,Object> profileInfo = new ObjectMapper().readValue(profileResponse.getBody(), HashMap.class);
+
+            TwitterProfile profile = new TwitterProfile(
+                    accessTokens,
+                    profileInfo);
+
+            // Step 3. Process the authenticated the user.
+
+            return processUser(request, profile);
+        }
+
+    }
+
 
     /*
      * Inner classes for entity wrappers
@@ -281,6 +342,107 @@ public class AuthResource
 
         public String getState() {
             return state;
+        }
+    }
+
+    public static class OAuth1Payload {
+        @NotBlank
+        String clientId;
+
+        @NotBlank
+        String redirectUri;
+
+        @Optional
+        String name;
+
+        @Optional
+        String oauthType;
+
+        @Optional
+        String url;
+
+        @Optional
+        String authorizationEndpoint;
+
+        @Optional
+        Map popupOptions;
+
+        @Optional
+        String oauth_token;
+
+        @Optional
+        String oauth_verifier;
+
+        public String getClientId() {
+            return clientId;
+        }
+
+        public void setClientId(String clientId) {
+            this.clientId = clientId;
+        }
+
+        public String getRedirectUri() {
+            return redirectUri;
+        }
+
+        public void setRedirectUri(String redirectUri) {
+            this.redirectUri = redirectUri;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public String getOauthType() {
+            return oauthType;
+        }
+
+        public void setOauthType(String oauthType) {
+            this.oauthType = oauthType;
+        }
+
+        public String getUrl() {
+            return url;
+        }
+
+        public void setUrl(String url) {
+            this.url = url;
+        }
+
+        public String getAuthorizationEndpoint() {
+            return authorizationEndpoint;
+        }
+
+        public void setAuthorizationEndpoint(String authorizationEndpoint) {
+            this.authorizationEndpoint = authorizationEndpoint;
+        }
+
+        public Map getPopupOptions() {
+            return popupOptions;
+        }
+
+        public void setPopupOptions(Map popupOptions) {
+            this.popupOptions = popupOptions;
+        }
+
+        public String getOauth_token() {
+            return oauth_token;
+        }
+
+        public void setOauth_token(String oauth_token) {
+            this.oauth_token = oauth_token;
+        }
+
+        public String getOauth_verifier() {
+            return oauth_verifier;
+        }
+
+        public void setOauth_verifier(String oauth_verifier) {
+            this.oauth_verifier = oauth_verifier;
         }
     }
 
