@@ -77,9 +77,11 @@ public class Main {
     public static RestRDFServer startServer(URI uri) throws IOException, URISyntaxException {
         RestRDFServer serverInstance = new RestRDFServer(uri);
 
-        serverInstance.startServer();
+        serverInstance.configureServer();
 
-        serverInstance.startProxyServer();
+        serverInstance.configureProxyServer();
+
+        serverInstance.startServers();
 
         return serverInstance;
     }

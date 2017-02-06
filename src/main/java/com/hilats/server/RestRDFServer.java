@@ -42,9 +42,15 @@ public class RestRDFServer {
         this.serverURI = serverURI;
     }
 
-    public void startServer() throws IOException {
+    public void startServers() throws IOException {
+        this.restServer.start();
+        if (this.proxyServer != null && this.proxyServer != this.restServer)
+            this.proxyServer.start();
+    }
 
-        startServer(this.serverURI, null);
+    public void startServer() throws IOException {
+        configureServer();
+        this.restServer.start();
     }
 
     /**
@@ -52,6 +58,15 @@ public class RestRDFServer {
      * @return Grizzly HTTP server.
      */
     public void startServer(URI uri, String[] contextFiles) throws IOException {
+        this.configureServer(uri, contextFiles);
+        this.restServer.start();
+    }
+
+    public void configureServer() throws IOException {
+        this.configureServer(this.serverURI, null);
+    }
+
+    public void configureServer(URI uri, String[] contextFiles) throws IOException {
 
 
         HttpServer server = HttpServer.createSimpleServer(".", uri.getHost(), uri.getPort());
@@ -117,30 +132,14 @@ public class RestRDFServer {
         server.getServerConfiguration().addHttpHandler(
                 new CLStaticHttpHandler(RestRDFServer.class.getClassLoader(), "/web/"), "/");
 
-        server.start();
-
         // this is required to allow url-encoded slashes in IDs
         server.getHttpHandler().setAllowEncodedSlash(true);
 
     }
 
 
-    public void startProxyServer() throws IOException, URISyntaxException {
+    public void configureProxyServer() throws IOException, URISyntaxException {
         ApplicationConfig config = this.restSpringContext.getBean(RdfApplication.class).getConfig();
-
-        int port = serverURI.getPort()+1;
-        if (config.proxyPort != -1)
-            port = config.proxyPort;
-        else
-            config.proxyPort = port;
-
-        URI uri = new URI(serverURI.getScheme(), serverURI.getUserInfo(), serverURI.getHost(), port, serverURI.getPath(), serverURI.getQuery(), serverURI.getFragment());
-
-        final HttpServer server = new HttpServer();
-        final NetworkListener listener =
-                new NetworkListener("Proxy",uri.getHost(),uri.getPort());
-        server.addListener(listener);
-
 
         /* Add proxy servlet */
         WebappContext proxyCtx = new WebappContext("Proxy");
@@ -159,9 +158,13 @@ public class RestRDFServer {
                 if (origin == null || origin.contains("localhost")) {
                     // for test & debug purposes
                     ((HttpServletResponse) response).setHeader("Access-Control-Allow-Origin", "*");
+                    //((HttpServletResponse) response).setHeader("X-Frame-Options", "ALLOW-FROM "+((HttpServletRequest) request).getHeader("referer"));
+                    //((HttpServletResponse) response).setHeader("Content-Security-Policy", "frame-ancestors "+((HttpServletRequest) request).getHeader("referer"));
                 }
                 else if (config.proxyAllowedOrigin != null) {
                     ((HttpServletResponse) response).setHeader("Access-Control-Allow-Origin", config.proxyAllowedOrigin);
+                    //((HttpServletResponse) response).setHeader("X-Frame-Options", "ALLOW-FROM "+((HttpServletRequest) request).getHeader("referer"));
+                    //((HttpServletResponse) response).setHeader("Content-Security-Policy", "frame-ancestors "+((HttpServletRequest) request).getHeader("referer"));
                 }
 
                 ((HttpServletResponse) response).setHeader("Access-Control-Allow-Headers", ((HttpServletRequest) request).getHeader("Access-Control-Request-Headers"));
@@ -184,14 +187,30 @@ public class RestRDFServer {
         reg.setInitParameter("httpClient.connectionRequestTimeout", "1000");
         reg.addMapping("/proxy");
 
-        proxyCtx.deploy(server);
 
-        this.proxyServer = server;
+        // deploy to server
 
-        server.start();
+        int port = serverURI.getPort()+1;
+        if (config.proxyPort != -1)
+            port = config.proxyPort;
+        else
+            config.proxyPort = port;
+
+        if (serverURI.getPort() != port)  {
+            URI uri = new URI(serverURI.getScheme(), serverURI.getUserInfo(), serverURI.getHost(), port, serverURI.getPath(), serverURI.getQuery(), serverURI.getFragment());
+
+            this.proxyServer = new HttpServer();
+            final NetworkListener listener =
+                    new NetworkListener("Proxy",uri.getHost(),uri.getPort());
+            this.proxyServer.addListener(listener);
+        } else {
+            this.proxyServer = this.restServer;
+        }
+
+        proxyCtx.deploy(this.proxyServer);
 
         // this is required to allow url-encoded slashes in IDs
-        server.getHttpHandler().setAllowEncodedSlash(true);
+        this.proxyServer.getHttpHandler().setAllowEncodedSlash(true);
 
     }
 
