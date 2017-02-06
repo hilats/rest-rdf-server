@@ -12,6 +12,7 @@ import java.util.Map;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApplicationConfig {
 
+    public int publicProxyPort = -1;
     public int proxyPort = -1;
     public String proxyAllowedOrigin = null;
 

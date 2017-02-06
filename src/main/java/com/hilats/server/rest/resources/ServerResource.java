@@ -43,7 +43,7 @@ public class ServerResource
     {
         Map config = new HashMap();
         //TODO devise a more generix way, rather than copying single properties manually
-        config.put("proxyPort", getApplication().getConfig().proxyPort);
+        config.put("proxyPort", getApplication().getConfig().publicProxyPort > 0 ? getApplication().getConfig().publicProxyPort : getApplication().getConfig().proxyPort);
 
         return config;
     }
