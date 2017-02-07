@@ -81,6 +81,8 @@ public class Main {
 
         serverInstance.configureProxyServer();
 
+        serverInstance.configureStaticServer();
+
         serverInstance.startServers();
 
         return serverInstance;

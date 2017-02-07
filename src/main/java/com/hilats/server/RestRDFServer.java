@@ -128,13 +128,15 @@ public class RestRDFServer {
         this.restSpringContext = WebApplicationContextUtils.getWebApplicationContext(restApiCtx);
         this.restServer = server;
 
-        // Static content handler
-        server.getServerConfiguration().addHttpHandler(
-                new CLStaticHttpHandler(RestRDFServer.class.getClassLoader(), "/web/"), "/");
-
         // this is required to allow url-encoded slashes in IDs
         server.getHttpHandler().setAllowEncodedSlash(true);
 
+    }
+
+    public void configureStaticServer() {
+        // Static content handler
+        this.restServer.getServerConfiguration().addHttpHandler(
+                new CLStaticHttpHandler(RestRDFServer.class.getClassLoader(), "/web/"), "/");
     }
 
 
