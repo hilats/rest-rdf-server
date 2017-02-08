@@ -18,4 +18,6 @@ public class ApplicationConfig {
 
     public Map<String, Map<String, String>> authProviders = new HashMap<String, Map<String, String>>();
 
+    public Map<String, Object> webappConfig = new HashMap();
+
 }

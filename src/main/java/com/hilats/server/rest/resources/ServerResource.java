@@ -41,10 +41,6 @@ public class ServerResource
     @Produces(MediaType.APPLICATION_JSON)
     public Object getConfig()
     {
-        Map config = new HashMap();
-        //TODO devise a more generix way, rather than copying single properties manually
-        config.put("proxyPort", getApplication().getConfig().publicProxyPort > 0 ? getApplication().getConfig().publicProxyPort : getApplication().getConfig().proxyPort);
-
-        return config;
+        return getApplication().getConfig().webappConfig;
     }
 }
