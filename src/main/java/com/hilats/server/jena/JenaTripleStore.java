@@ -88,4 +88,9 @@ public class JenaTripleStore
     public JenaConnectionFactory getRepoConnectionFactory() {
         return (JenaConnectionFactory)super.getRepoConnectionFactory();
     }
+
+
+    public boolean isEmpty() {
+        return getModel().isEmpty();
+    }
 }

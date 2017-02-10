@@ -23,4 +23,6 @@ public interface TripleStore {
     public abstract StreamingOutput getStatementsStreamer(String sparql, String mimeType, Map config);
 
     public abstract RepoConnectionFactory getRepoConnectionFactory();
+
+    boolean isEmpty();
 }

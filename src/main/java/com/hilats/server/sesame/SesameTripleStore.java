@@ -135,4 +135,13 @@ public class SesameTripleStore
     public RepositoryConnection getSesameConnection() {
         return (RepositoryConnection)getRepoConnectionFactory().getCurrentConnection().getOriginalConnection();
     }
+
+    @Override
+    public boolean isEmpty() {
+        try {
+            return getSesameConnection().isEmpty();
+        } catch (RepositoryException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

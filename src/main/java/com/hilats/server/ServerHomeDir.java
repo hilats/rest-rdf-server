@@ -66,4 +66,8 @@ public class ServerHomeDir {
     public File getRootDir() {
         return rootDir;
     }
+
+    public File getResource(String path) {
+        return new File(getRootDir(), path);
+    }
 }

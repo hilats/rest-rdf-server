@@ -116,8 +116,7 @@ public class RdfApplication
     }
 
     public void initData() throws Exception {
-        if (initData != null) {
-            RepoConnection conn = connFactory.getCurrentConnection();
+        if (initData != null && store.isEmpty()) {
             try {
                 for (Resource res : initData)
                     store.addStatements(res.getInputStream(), initMimeType);
