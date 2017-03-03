@@ -1,6 +1,7 @@
 package com.hilats.server;
 
 import org.apache.http.Header;
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -48,6 +49,15 @@ public class HilatsProxyServlet
                 // this can be a problem f.i. for CKAN that sets Allow-Origin header, causing duplicate values
                 copyResponseHeader(servletRequest, servletResponse, header);
         }
+    }
+
+    @Override
+    protected void copyRequestHeader(HttpServletRequest servletRequest, HttpRequest proxyRequest, String headerName) {
+        // ignore referer header ; some remote services choke on it
+        if (headerName.equals("referer") || headerName.equals("origin"))
+            return;
+
+        super.copyRequestHeader(servletRequest, proxyRequest, headerName);
     }
 
     @Override
