@@ -93,4 +93,9 @@ public class JenaTripleStore
     public boolean isEmpty() {
         return getModel().isEmpty();
     }
+
+    @Override
+    public void clean() {
+        getModel().removeAll();
+    }
 }

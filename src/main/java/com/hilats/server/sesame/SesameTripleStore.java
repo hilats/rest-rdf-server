@@ -144,4 +144,13 @@ public class SesameTripleStore
             throw new RuntimeException(e);
         }
     }
+
+    @Override
+    public void clean() {
+        try {
+            getSesameConnection().clear();
+        } catch (RepositoryException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

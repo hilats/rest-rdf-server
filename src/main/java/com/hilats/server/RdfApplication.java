@@ -1,5 +1,6 @@
 package com.hilats.server;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
@@ -51,6 +52,8 @@ public class RdfApplication
     protected Resource[] initData;
     protected String initMimeType;
 
+    protected boolean cleanOnInit = false;
+
     protected RdfApplication(TripleStore store, Object... components) {
         this.store = store;
 
@@ -95,6 +98,10 @@ public class RdfApplication
         });
     }
 
+    public void setCleanOnInit(boolean cleanOnInit) {
+        this.cleanOnInit = cleanOnInit;
+    }
+
     protected RdfApplication(TripleStore store, Resource[] initData, String mimeType, Object... components) throws FileNotFoundException {
         this (store, components);
 
@@ -106,6 +113,7 @@ public class RdfApplication
     public void afterPropertiesSet() throws Exception {
 
         ObjectMapper mapper = new ObjectMapper();
+        mapper.enable(JsonParser.Feature.ALLOW_COMMENTS);
 
         File configFile = new File(homedir.getRootDir(), "server.json");
         if (configFile.exists())
@@ -116,6 +124,10 @@ public class RdfApplication
     }
 
     public void initData() throws Exception {
+        if (cleanOnInit) {
+            store.clean();
+        }
+
         if (initData != null && store.isEmpty()) {
             try {
                 for (Resource res : initData)

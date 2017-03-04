@@ -43,4 +43,13 @@ public class ServerResource
     {
         return getApplication().getConfig().webappConfig;
     }
+
+    @POST
+    @Path("exec")
+    public Object execute(@QueryParam("action") String action)
+    {
+        getApplication().getStore().clean();
+
+        return null;
+    }
 }

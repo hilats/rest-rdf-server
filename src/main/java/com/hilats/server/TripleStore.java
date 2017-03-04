@@ -12,17 +12,19 @@ public interface TripleStore {
 
     public static String DEFAULT_SPARQL_QUERY = "CONSTRUCT {?s ?p ?o } WHERE {?s ?p ?o }";
 
-    public abstract void addStatements(Collection statements);
+    public void addStatements(Collection statements);
 
-    public abstract void addStatements(InputStream in, String mimeType);
+    public void addStatements(InputStream in, String mimeType);
 
-    public abstract StreamingOutput removeStatements(String sparql, String mimetype, Map config);
+    public StreamingOutput removeStatements(String sparql, String mimetype, Map config);
 
-    public abstract Object getStatements(String sparql);
+    public Object getStatements(String sparql);
 
-    public abstract StreamingOutput getStatementsStreamer(String sparql, String mimeType, Map config);
+    public StreamingOutput getStatementsStreamer(String sparql, String mimeType, Map config);
 
-    public abstract RepoConnectionFactory getRepoConnectionFactory();
+    public RepoConnectionFactory getRepoConnectionFactory();
+
+    void clean();
 
     boolean isEmpty();
 }
