@@ -15,9 +15,9 @@ public class HilatsUser {
     public String username;
 
     public String password;
-    public String firstName;
-    public String lastName;
+    public String displayName;
     public String email;
+    public String pictureUrl;
 
     public String[] roles = new String[] {};
 
@@ -41,12 +41,12 @@ public class HilatsUser {
         return password;
     }
 
-    public String getFirstName() {
-        return firstName;
+    public String getDisplayName() {
+        return displayName;
     }
 
-    public String getLastName() {
-        return lastName;
+    public String getPictureUrl() {
+        return pictureUrl;
     }
 
     public String getEmail() {

@@ -36,6 +36,14 @@ public class MongoUserService implements HilatsUserService {
         return user;
     }
 
+    public final HilatsUser findUserByEmail(String email) {
+        Query searchUserQuery = new Query(Criteria.where("email").is(email));
+
+        // find the saved user again.
+        HilatsUser user = template.findOne(searchUserQuery, HilatsUser.class);
+        return user;
+    }
+
     @Override
     public void addUser(HilatsUser user) {
         Query searchUserQuery = new Query(Criteria.where("username").is(user.getUsername()));

@@ -9,6 +9,8 @@ public interface HilatsUserService
 {
     public HilatsUser findUser(String userid);
 
+    public HilatsUser findUserByEmail(String email);
+
     void addUser(HilatsUser user);
 
     void saveUser(HilatsUser user);

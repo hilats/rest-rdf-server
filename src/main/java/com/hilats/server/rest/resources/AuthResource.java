@@ -1,7 +1,9 @@
 package com.hilats.server.rest.resources;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +33,7 @@ import com.github.scribejava.core.oauth.OAuth10aService;
 import com.hilats.server.spring.jwt.*;
 
 import com.hilats.server.spring.jwt.services.*;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.hibernate.validator.constraints.NotBlank;
@@ -470,14 +473,20 @@ public class AuthResource
         } else {
             // Step 3b. Create a new user account or return an existing one.
 
-            user = userService.findUser(profile.getEmail());
+            user = userService.findUserByEmail(profile.getEmail());
             if (user != null) {
                 // OK
             } else {
+                byte[] emailHash = DigestUtils.md5(profile.getEmail());
+                long userId = ByteBuffer.wrap(Arrays.copyOfRange(emailHash, 0, 8)).getLong();
                 user = new HilatsUser(
-                        profile.getEmail(),
+                        String.valueOf(userId),
                         UUID.randomUUID().toString(),
-                        new String[] {"user"});
+                        new String[]{"user"});
+
+                user.email = profile.getEmail();
+                user.displayName = profile.getDisplayName();
+                user.pictureUrl = profile.getPictureUrl();
 
                 userService.addUser(user);
             }

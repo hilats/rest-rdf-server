@@ -22,4 +22,14 @@ public class TwitterProfile
     public String getEmail() {
         return String.valueOf(getUserInfo().get("email"));
     }
+
+    @Override
+    public String getDisplayName() {
+        return String.valueOf(getUserInfo().get("name"));
+    }
+
+    @Override
+    public String getPictureUrl() {
+        return String.valueOf(getUserInfo().get("profile_image_url"));
+    }
 }

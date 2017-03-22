@@ -22,4 +22,14 @@ public class FacebookProfile
     public String getEmail() {
         return (String)getUserInfo().get("email");
     }
+
+    @Override
+    public String getDisplayName() {
+        return (String)getUserInfo().get("name");
+    }
+
+    @Override
+    public String getPictureUrl() {
+        return (String)((Map)((Map)getUserInfo().get("picture")).get("data")).get("url");
+    }
 }

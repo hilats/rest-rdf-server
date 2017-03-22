@@ -34,4 +34,8 @@ public abstract class AuthProfile {
     public abstract String getId();
 
     public abstract String getEmail();
+
+    public abstract String getDisplayName();
+
+    public abstract String getPictureUrl();
 }

@@ -22,4 +22,14 @@ public class GoogleProfile
     public String getEmail() {
         return (String)getUserInfo().get("email");
     }
+
+    @Override
+    public String getDisplayName() {
+        return (String)getUserInfo().get("name");
+    }
+
+    @Override
+    public String getPictureUrl() {
+        return (String)getUserInfo().get("picture");
+    }
 }
