@@ -19,7 +19,7 @@ public class TokenAuthenticationService {
     }
 
     public String createToken(UserAuthentication authentication) {
-        final UserDetails user = authentication.getDetails();
+        final UserDetails user = authentication.getPrincipal();
         String token = tokenHandler.createTokenForUser(user);
         return token;
     }

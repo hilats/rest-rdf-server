@@ -31,13 +31,13 @@ public class UserAuthentication implements Authentication {
     }
 
     @Override
-    public HilatsUserDetails getDetails() {
-        return user;
+    public Object getDetails() {
+        return null;
     }
 
     @Override
-    public Object getPrincipal() {
-        return user.getUsername();
+    public HilatsUserDetails getPrincipal() {
+        return user;
     }
 
     @Override

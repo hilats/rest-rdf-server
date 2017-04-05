@@ -23,9 +23,10 @@ public class TestSecurityConfigurer implements SecurityConfigurer
 
     @Override
     public void configure(SecurityBuilder builder) throws Exception {
+        //TODO is this still used? apprently not ; test user is defined in TestUserService
         ((AuthenticationManagerBuilder)builder)
                 .userDetailsService(userService).and()
                 .inMemoryAuthentication()
-                .withUser("test").password("test").roles("USER");
+                .withUser("test").password("test").roles("user", "admin");
     }
 }

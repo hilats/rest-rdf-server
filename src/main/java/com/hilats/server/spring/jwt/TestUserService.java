@@ -9,9 +9,10 @@ import java.util.HashMap;
 public class TestUserService implements HilatsUserService {
 
     private final HashMap<String, HilatsUser> userMap = new HashMap();
+    private final HashMap<String, HilatsUser> userMapByEmail = new HashMap();
 
     public TestUserService() {
-        addUser(new HilatsUser("test", "test", new String[] {"user"}));
+        addUser(new HilatsUser("test", "test", new String[] {"user", "admin"}));
     }
 
     @Override
@@ -21,16 +22,17 @@ public class TestUserService implements HilatsUserService {
 
     @Override
     public final HilatsUser findUser(String username) throws UsernameNotFoundException {
-        throw new UnsupportedOperationException("Not Implenmeted");
+        return userMap.get(username);
     }
 
     @Override
     public HilatsUser findUserByEmail(String email) {
-        return userMap.get(email);
+        return userMapByEmail.get(email);
     }
 
     public void addUser(HilatsUser user) {
-        userMap.put(user.email, user);
+        userMap.put(user.getUsername(), user);
+        userMapByEmail.put(user.email, user);
     }
 
     @Override

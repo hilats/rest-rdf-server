@@ -34,8 +34,8 @@ public class AbstractResource {
     public void init() {
         if (securityContext.getUserPrincipal() != null &&
             securityContext.getUserPrincipal() instanceof Authentication &&
-            ((Authentication)securityContext.getUserPrincipal()).getDetails() instanceof HilatsUserDetails) {
-            user = ((HilatsUserDetails)((Authentication)securityContext.getUserPrincipal()).getDetails()).getUser();
+            ((Authentication)securityContext.getUserPrincipal()).getPrincipal() instanceof HilatsUserDetails) {
+            user = ((HilatsUserDetails)((Authentication)securityContext.getUserPrincipal()).getPrincipal()).getUser();
         };
     }
 

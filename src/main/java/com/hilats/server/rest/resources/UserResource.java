@@ -32,6 +32,7 @@ public class UserResource
 
     @GET
     @Path("/current")
+    @RolesAllowed("user")
     public Response getCurrentUser(@Context HttpServletRequest request) throws ParseException {
 
         return Response.ok().entity(this.securityContext.getUserPrincipal()).build();
@@ -47,9 +48,17 @@ public class UserResource
 
 
     @PUT
+    @RolesAllowed("user")
     public Response updateUser(@Valid User user, @Context HttpServletRequest request) throws ParseException {
 
-        return Response.ok().build();
+        if (this.securityContext.isUserInRole("admin") ||
+                this.securityContext.getUserPrincipal().getName().equals(user.getUsername())) {
+            //TODO
+            return Response.ok().build();
+        } else {
+            return Response.status(Status.FORBIDDEN).build();
+        }
+
     }
 
 
