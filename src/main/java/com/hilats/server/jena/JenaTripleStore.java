@@ -54,7 +54,7 @@ public class JenaTripleStore
     }
 
     @Override
-    public void addStatements(Collection statements) {
+    public void addStatements(Iterable statements) {
         throw new UnsupportedOperationException("Not implemented");
     }
 

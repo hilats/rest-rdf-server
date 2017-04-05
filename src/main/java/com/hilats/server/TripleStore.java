@@ -1,5 +1,7 @@
 package com.hilats.server;
 
+import org.openrdf.model.Statement;
+
 import javax.ws.rs.core.StreamingOutput;
 import java.io.InputStream;
 import java.util.Collection;
@@ -12,7 +14,7 @@ public interface TripleStore {
 
     public static String DEFAULT_SPARQL_QUERY = "CONSTRUCT {?s ?p ?o } WHERE {?s ?p ?o }";
 
-    public void addStatements(Collection statements);
+    public void addStatements(Iterable<Statement> statements);
 
     public void addStatements(InputStream in, String mimeType);
 

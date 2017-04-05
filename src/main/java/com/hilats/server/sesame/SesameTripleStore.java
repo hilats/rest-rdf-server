@@ -39,13 +39,13 @@ public class SesameTripleStore
 
 
     @Override
-    public void addStatements(Collection statements) {
+    public void addStatements(Iterable<Statement> statements) {
         RepositoryConnection con = getSesameConnection();
         try {
             con.begin();
             //RDFHandlerWrapper rdfInserter = new Skolemizer(new RDFInserter(con)); //TODO still needed here ?
             //for (Statement s: (Collection<Statement>)statements) rdfInserter.handleStatement(s);
-            con.add((Collection<Statement>) statements);
+            con.add(statements);
             con.commit();
         } catch (Exception e) {
             throw new RuntimeException("Failed to insert RDF stream", e);
