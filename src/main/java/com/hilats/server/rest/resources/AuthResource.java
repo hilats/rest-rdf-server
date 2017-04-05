@@ -484,6 +484,11 @@ public class AuthResource
                         UUID.randomUUID().toString(),
                         new String[]{"user"});
 
+                // if new user matches default admin in config, add admin role
+                if (profile.getEmail().equals(getApplication().getConfig().admin)) {
+                    user.roles = new String[]{"user", "admin"};
+                }
+
                 user.email = profile.getEmail();
                 user.displayName = profile.getDisplayName();
                 user.pictureUrl = profile.getPictureUrl();

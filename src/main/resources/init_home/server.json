@@ -16,6 +16,8 @@
             "client_id" : "81j1tjve0kmu64",
             "client_secret" : "lhiB122F6tPmCzHW"
         }
-    }
+    },
+
+    "admin": "admin@mailserver.com"
 }
 

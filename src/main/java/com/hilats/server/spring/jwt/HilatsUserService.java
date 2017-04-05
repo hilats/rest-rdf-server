@@ -7,6 +7,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
  */
 public interface HilatsUserService
 {
+    public Iterable<HilatsUser> getUsers();
+
     public HilatsUser findUser(String userid);
 
     public HilatsUser findUserByEmail(String email);

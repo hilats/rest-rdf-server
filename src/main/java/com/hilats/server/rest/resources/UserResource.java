@@ -1,18 +1,16 @@
 package com.hilats.server.rest.resources;
 
 import com.hilats.server.spring.jwt.TokenHandler;
+import org.springframework.context.annotation.Role;
 import org.springframework.security.core.token.TokenService;
 import org.springframework.security.core.userdetails.User;
 
 import java.text.ParseException;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -26,9 +24,25 @@ public class UserResource
 {
 
     @GET
-    public Response getUser(@Context HttpServletRequest request) throws ParseException {
+    @RolesAllowed("admin")
+    public Response getAllUsers(@Context HttpServletRequest request) throws ParseException {
+
+        return Response.ok().entity(this.getApplication().getUserService().getUsers()).build();
+    }
+
+    @GET
+    @Path("/current")
+    public Response getCurrentUser(@Context HttpServletRequest request) throws ParseException {
 
         return Response.ok().entity(this.securityContext.getUserPrincipal()).build();
+    }
+
+    @GET
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response getUser(@PathParam("id") String id, @Context HttpServletRequest request) throws ParseException {
+
+        return Response.ok().entity(this.getApplication().getUserService().findUser(id)).build();
     }
 
 

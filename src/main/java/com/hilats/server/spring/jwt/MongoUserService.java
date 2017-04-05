@@ -28,6 +28,11 @@ public class MongoUserService implements HilatsUserService {
         this.template = new MongoTemplate(client, databaseName);
     }
 
+    @Override
+    public Iterable<HilatsUser> getUsers() {
+        return template.findAll(HilatsUser.class);
+    }
+
     public final HilatsUser findUser(String username) {
         Query searchUserQuery = new Query(Criteria.where("username").is(username));
 

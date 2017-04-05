@@ -20,4 +20,6 @@ public class ApplicationConfig {
 
     public Map<String, Object> webappConfig = new HashMap();
 
+    public String admin;
+
 }

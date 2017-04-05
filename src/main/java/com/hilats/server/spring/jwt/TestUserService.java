@@ -15,6 +15,11 @@ public class TestUserService implements HilatsUserService {
     }
 
     @Override
+    public Iterable<HilatsUser> getUsers() {
+        return userMap.values();
+    }
+
+    @Override
     public final HilatsUser findUser(String username) throws UsernameNotFoundException {
         throw new UnsupportedOperationException("Not Implenmeted");
     }
