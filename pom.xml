@@ -27,6 +27,7 @@
 
         <!-- jersey 2.7 is not backward comp with JDK6, needed for Heroku -->
         <!-- jersey 2.7 is required to get HK2 dispose properly called -->
+        <!-- TODO migrate to latest version -->
         <jersey.version>2.7</jersey.version>
 
         <grizzly.version>2.3.28</grizzly.version>

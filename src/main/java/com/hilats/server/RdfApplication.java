@@ -2,6 +2,7 @@ package com.hilats.server;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hilats.server.rest.resources.JacksonCustomMapperProvider;
 import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -57,14 +58,16 @@ public class RdfApplication
     protected RdfApplication(TripleStore store, Object... components) {
         this.store = store;
 
-        Map props = new HashMap<String, Object>();
-        props.put(ServerProperties.MEDIA_TYPE_MAPPINGS, "rdf: application/rdf+xml, txt : text/plain, xml : application/xml, json : application/json, jsonld : application/ld+json, ttl : text/turtle");
-        this.addProperties(props);
+        property(ServerProperties.MEDIA_TYPE_MAPPINGS, "rdf: application/rdf+xml, txt : text/plain, xml : application/xml, json : application/json, jsonld : application/ld+json, ttl : text/turtle");
+
+        // make sure status>=400 is indeed processed by our exceptionMapper
+        property(ServerProperties.RESPONSE_SET_STATUS_OVER_SEND_ERROR, true);
 
         for (Object component: components) register(component);
         this.packages(RdfApplication.class.getPackage().getName()+".rest.resources");
         this.register(ExceptionHandler.class);
         register(JacksonFeature.class);
+        register(JacksonCustomMapperProvider.class);
         register(CORSResponseFilter.class);
         register(RolesAllowedDynamicFeature.class);
         //this.register(DBConnectionFilter.class);
