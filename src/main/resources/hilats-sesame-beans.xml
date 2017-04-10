@@ -10,8 +10,11 @@
 
     <bean name="sesameStore" class="org.openrdf.sail.memory.MemoryStore"/>
 
+    <bean name="luceneStore" class="org.openrdf.sail.lucene.LuceneSail">
+    </bean>
+
     <bean name="sesameRepo" class="org.openrdf.repository.sail.SailRepository">
-        <constructor-arg ref="sesameStore"/>
+        <constructor-arg ref="luceneStore"/>
     </bean>
 
     <bean name="sesameConnFactory" class="com.hilats.server.sesame.SesameConnectionFactory">

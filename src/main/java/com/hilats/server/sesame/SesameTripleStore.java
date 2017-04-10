@@ -4,6 +4,7 @@ import com.hilats.server.AbstractTripleStore;
 import com.hilats.server.RdfApplication;
 import com.hilats.server.RepoConnectionFactory;
 import com.hilats.server.TripleStore;
+import org.openrdf.model.Model;
 import org.openrdf.model.Statement;
 import org.openrdf.query.GraphQueryResult;
 import org.openrdf.query.QueryEvaluationException;
@@ -37,6 +38,9 @@ public class SesameTripleStore
         connFactory.getRepository().initialize();
     }
 
+    public void addModelStatements(Model statements) {
+        addStatements(statements);
+    }
 
     @Override
     public void addStatements(Iterable<Statement> statements) {
