@@ -9,7 +9,7 @@
         >
 
     <bean id="mongo" class="com.hilats.server.spring.EmbeddedMongoFactoryBean">
-        <property name="dbPath" value="./embeddedMongo"/>
+        <property name="dbPath" value="#{serverHomeDir.getResource('embeddedMongo').toString()}"/>
     </bean>
 
     <bean name="myUserService" class="com.hilats.server.spring.jwt.MongoUserService">
