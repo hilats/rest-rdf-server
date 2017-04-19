@@ -12,6 +12,7 @@ import org.jvnet.hk2.annotations.Optional;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 
+import javax.annotation.security.RolesAllowed;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.ws.rs.*;
@@ -46,9 +47,15 @@ public class ServerResource
 
     @POST
     @Path("exec")
-    public Object execute(@QueryParam("action") String action)
-    {
-        getApplication().getStore().clean();
+    @RolesAllowed("admin")
+    public Object execute(@QueryParam("action") String action) throws Exception {
+        if ("clean".equals(action)) {
+            getApplication().getStore().clean();
+        } else if ("initdata".equals(action)) {
+            getApplication().initData();
+        } else {
+            throw new WebApplicationException("Unknown action: "+action, 500);
+        }
 
         return null;
     }
