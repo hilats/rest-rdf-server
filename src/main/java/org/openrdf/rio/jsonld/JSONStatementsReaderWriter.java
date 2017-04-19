@@ -39,10 +39,10 @@ public class JSONStatementsReaderWriter
     private JsonLdOptions jsonldOptions = new JsonLdOptions();
 
     public JSONStatementsReaderWriter(InputStream context, Map<String, InputStream> frameResources) throws IOException {
-        PARSE_CONTEXT = (Map)JsonUtils.fromInputStream(context);
+        PARSE_CONTEXT = (Map)JsonUtils.fromInputStream(context, "UTF-8");
 
         for (Map.Entry<String, InputStream> frameDef: frameResources.entrySet())
-            JSONLD_FRAMES.put(frameDef.getKey(), (Map)JsonUtils.fromInputStream(frameDef.getValue()));
+            JSONLD_FRAMES.put(frameDef.getKey(), (Map)JsonUtils.fromInputStream(frameDef.getValue(), "UTF-8"));
     }
 
     public JsonLdOptions getJsonldOptions() {
@@ -76,7 +76,7 @@ public class JSONStatementsReaderWriter
                 final JSONLDInternalTripleCallback callback = new JSONLDInternalTripleCallback(collector);
                 //final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
                 //options.useNamespaces = true;
-                Object jsonObj = JsonUtils.fromInputStream(entityStream);
+                Object jsonObj = JsonUtils.fromInputStream(entityStream, "UTF-8");
                 Map jsonld = new HashMap();
                 jsonld.put("@graph", jsonObj);
                 jsonld.put("@context", JSONLD_FRAMES.get(typename).get("@context"));
@@ -89,7 +89,7 @@ public class JSONStatementsReaderWriter
                 final JSONLDInternalTripleCallback callback = new JSONLDInternalTripleCallback(collector);
                 //final JsonLdOptions options = new JsonLdOptions("http://localhost/test");
                 //options.useNamespaces = true;
-                Object jsonObj = JsonUtils.fromInputStream(entityStream);
+                Object jsonObj = JsonUtils.fromInputStream(entityStream, "UTF-8");
                 JsonLdProcessor.toRDF(jsonObj, callback, jsonldOptions);
 
                 return new TypedModel(new LinkedHashModel(collector.getStatements()));
@@ -129,13 +129,13 @@ public class JSONStatementsReaderWriter
                     if (graph.size() > 1)
                         throw new IllegalStateException("Result should be unique, but graph contains multiple objects");
 
-                    JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), graph.get(0));
+                    JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream, "UTF-8"), graph.get(0));
                 }
                 else
-                    JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), graph);
+                    JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream, "UTF-8"), graph);
             } else if (JSONLD.equals(mediaType)) {
                 Map output = JsonLdProcessor.compact(statements, PARSE_CONTEXT, jsonldOptions);
-                JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream), output);
+                JsonUtils.writePrettyPrint(new OutputStreamWriter(entityStream, "UTF-8"), output);
             } else
                 throw new WebApplicationException("Unsupported media type: "+mediaType);
 
