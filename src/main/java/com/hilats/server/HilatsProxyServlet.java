@@ -6,14 +6,24 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.params.HttpParams;
 import org.mitre.dsmiley.httpproxy.URITemplateProxyServlet;
 
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 /**
  * @author pduchesne
@@ -22,7 +32,27 @@ import java.io.IOException;
 public class HilatsProxyServlet
     extends URITemplateProxyServlet
 {
+    private boolean acceptUnverifiedCertificates = false;
+
     public HilatsProxyServlet() {
+    }
+
+    public HilatsProxyServlet(boolean acceptUnverifiedCertificates) {
+        this.acceptUnverifiedCertificates = acceptUnverifiedCertificates;
+    }
+
+    private static class DefaultTrustManager implements X509TrustManager {
+
+        @Override
+        public void checkClientTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+
+        @Override
+        public void checkServerTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {}
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            return null;
+        }
     }
 
     @Override
@@ -33,11 +63,25 @@ public class HilatsProxyServlet
                 .setConnectionRequestTimeout(Integer.parseInt(getConfigParam("httpClient.connectionRequestTimeout")))
                 .build();
 
-        CloseableHttpClient httpclient = HttpClients.custom()
-                .setDefaultRequestConfig(defaultRequestConfig)
-                .build();
+        HttpClientBuilder builder = HttpClients.custom()
+                   .setDefaultRequestConfig(defaultRequestConfig);
 
-        return httpclient;
+        if (this.acceptUnverifiedCertificates) {
+            try {
+                SSLContext ctx = SSLContext.getInstance("TLS");
+                ctx.init(new KeyManager[0], new TrustManager[]{new DefaultTrustManager()}, new SecureRandom());
+                SSLContext.setDefault(ctx);
+
+                builder.setSSLContext(ctx);
+
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            } catch (KeyManagementException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return builder.build();
     }
 
     /** Copy proxied response headers back to the servlet client. */
