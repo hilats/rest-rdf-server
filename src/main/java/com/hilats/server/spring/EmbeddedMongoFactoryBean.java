@@ -22,6 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.AbstractFactoryBean;
 
+import java.io.File;
+
 /**
  * EmbeddedMongoFactoryBean will start an embedded MongoDB instance and returns 
  * a singleton instance of {@link com.mongodb.Mongo}.
@@ -118,8 +120,18 @@ public class EmbeddedMongoFactoryBean extends AbstractFactoryBean<MongoClient> {
                 .version(version)
                 .net(new Net(host, port, Network.localhostIsIPv6()));
 
-        if (dbPath != null)
-            builder.replication(new Storage(dbPath,null,0));
+        if (dbPath != null) {
+            builder.replication(new Storage(dbPath, null, 0));
+
+            // delete lock file id remaining from previous run
+            File lockFile = new File(dbPath, "mongod.lock");
+            if (lockFile.exists())
+                try {
+                    lockFile.delete();
+                } catch (Exception e) {
+                    logger.warn("Failed to remove mongod lock file", e);
+                }
+        }
 
         IMongodConfig mongodConfig = builder.build();
 
