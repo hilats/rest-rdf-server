@@ -3,6 +3,7 @@ package com.hilats.server;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hilats.server.rest.resources.JacksonCustomMapperProvider;
+import com.hilats.server.spring.jwt.HilatsUser;
 import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
@@ -87,7 +88,7 @@ public class RdfApplication
             public void onStartup(Container container)
             {
                 try {
-                    RdfApplication.this.initData();
+                    RdfApplication.this.initApplication();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -124,6 +125,23 @@ public class RdfApplication
         else
             mapper.writeValue(configFile, config = new ApplicationConfig());
 
+    }
+
+    public void initApplication() throws Exception {
+        // check for users that should be admin
+        if (getConfig().admin != null) {
+            HilatsUser adminUser = getUserService().findUserByEmail(getConfig().admin);
+
+            if (adminUser != null) {
+                adminUser.getRoles().add("admin");
+
+                getUserService().saveUser(adminUser);
+            } else {
+                // admin user not registered yet
+            }
+        }
+
+        initData();
     }
 
     public void initData() throws Exception {

@@ -4,6 +4,7 @@ import org.springframework.security.authentication.AccountStatusUserDetailsCheck
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 public class TestUserService implements HilatsUserService {
@@ -12,7 +13,7 @@ public class TestUserService implements HilatsUserService {
     private final HashMap<String, HilatsUser> userMapByEmail = new HashMap();
 
     public TestUserService() {
-        addUser(new HilatsUser("test", "test", new String[] {"user", "admin"}));
+        addUser(new HilatsUser("test", "test", Arrays.asList("user", "admin")));
     }
 
     @Override

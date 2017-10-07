@@ -3,8 +3,7 @@ package com.hilats.server.spring.jwt;
 import com.hilats.server.spring.jwt.services.AuthProfile;
 import org.springframework.data.annotation.Id;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by pduchesne on 11/02/16.
@@ -19,14 +18,14 @@ public class HilatsUser {
     public String email;
     public String pictureUrl;
 
-    public String[] roles = new String[] {};
+    public List<String> roles = new ArrayList<String>();
 
     public Map<String, AuthProfile> providerProfiles = new HashMap();
 
-    public HilatsUser(String username, String password, String[] roles) {
+    public HilatsUser(String username, String password, List<String> roles) {
         this.username = username;
         this.password = password;
-        this.roles = roles;
+        this.roles = new ArrayList(roles);
     }
 
     public Map<String, AuthProfile> getProviderProfiles() {
@@ -53,7 +52,7 @@ public class HilatsUser {
         return email;
     }
 
-    public String[] getRoles() {
+    public List<String> getRoles() {
         return roles;
     }
 }

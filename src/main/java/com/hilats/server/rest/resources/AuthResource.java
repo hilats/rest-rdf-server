@@ -482,11 +482,11 @@ public class AuthResource
                 user = new HilatsUser(
                         String.valueOf(userId),
                         UUID.randomUUID().toString(),
-                        new String[]{"user"});
+                        Arrays.asList("user"));
 
                 // if new user matches default admin in config, add admin role
                 if (profile.getEmail().equals(getApplication().getConfig().admin)) {
-                    user.roles = new String[]{"user", "admin"};
+                    user.getRoles().add("admin");
                 }
 
                 user.email = profile.getEmail();

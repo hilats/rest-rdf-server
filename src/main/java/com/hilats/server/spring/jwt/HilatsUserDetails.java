@@ -20,7 +20,7 @@ public class HilatsUserDetails
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return AuthorityUtils.createAuthorityList(user.roles);
+        return AuthorityUtils.createAuthorityList(user.roles.toArray(new String[] {}));
     }
 
     @Override
