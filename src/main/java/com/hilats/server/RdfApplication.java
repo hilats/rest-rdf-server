@@ -132,7 +132,7 @@ public class RdfApplication
         if (getConfig().admin != null) {
             HilatsUser adminUser = getUserService().findUserByEmail(getConfig().admin);
 
-            if (adminUser != null) {
+            if (adminUser != null && !adminUser.getRoles().contains("admin")) {
                 adminUser.getRoles().add("admin");
 
                 getUserService().saveUser(adminUser);
