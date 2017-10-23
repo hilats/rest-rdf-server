@@ -147,6 +147,8 @@ public class AuthResource
 
 
         final String accessToken = (String) credentials.get("access_token");
+        // TODO process expires_in
+        // see https://developer.linkedin.com/docs/oauth2# for refresh procedure
         response =
                 client.target(peopleApiUrl)
                         .queryParam("oauth2_access_token", accessToken)
@@ -269,7 +271,7 @@ public class AuthResource
 
         Map<String,String> twitterConf = getApplication().getConfig().authProviders.get("twitter");
         if (twitterConf == null)
-            return Response.serverError().status(Status.BAD_REQUEST).entity("OAuth provider not found: google").build();
+            return Response.serverError().status(Status.BAD_REQUEST).entity("OAuth provider not found: twitter").build();
 
         final OAuth10aService service = new ServiceBuilder()
                 .apiKey(twitterConf.get("client_id"))
@@ -298,8 +300,8 @@ public class AuthResource
 
 
             Map<String, Object> accessTokens = new HashMap<String, Object>();
-            accessTokens.put("oauth_token", payload.getOauth_token());
-            accessTokens.put("oauth_token_secret", payload.getOauth_verifier());
+            accessTokens.put("oauth_token", accessToken.getToken());
+            accessTokens.put("oauth_token_secret", accessToken.getTokenSecret());
 
             Map<String,Object> profileInfo = new ObjectMapper().readValue(profileResponse.getBody(), HashMap.class);
 
