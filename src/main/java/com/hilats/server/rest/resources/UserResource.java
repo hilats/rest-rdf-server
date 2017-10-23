@@ -66,7 +66,7 @@ public class UserResource
             case "google":
                 return SocialAccountResource.GoogleAccountResource.class;
             default:
-                throw new WebApplicationException(Status.NOT_IMPLEMENTED);
+                return SocialAccountResource.class;
         }
     }
 

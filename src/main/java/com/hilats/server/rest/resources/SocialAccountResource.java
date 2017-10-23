@@ -26,7 +26,7 @@ import java.util.concurrent.ExecutionException;
  * @author pduchesne
  *         Created by pduchesne on 23/10/17.
  */
-public abstract class SocialAccountResource
+public class SocialAccountResource
         extends AbstractResource
 {
     final Client client = new JerseyClientBuilder().build();
@@ -74,8 +74,11 @@ public abstract class SocialAccountResource
     @GET
     @Path("/sign")
     @RolesAllowed("user")
-    public abstract Response signSocialRequest(@QueryParam("request") String requestString)
-            throws ParseException, InterruptedException, ExecutionException, IOException;
+    public Response signSocialRequest(@QueryParam("request") String requestString)
+            throws ParseException, InterruptedException, ExecutionException, IOException
+    {
+        throw new WebApplicationException(Response.Status.NOT_IMPLEMENTED);
+    }
 
 
 
