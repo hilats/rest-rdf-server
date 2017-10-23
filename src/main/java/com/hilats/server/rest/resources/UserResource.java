@@ -1,8 +1,5 @@
 package com.hilats.server.rest.resources;
 
-import com.hilats.server.spring.jwt.TokenHandler;
-import org.springframework.context.annotation.Role;
-import org.springframework.security.core.token.TokenService;
 import org.springframework.security.core.userdetails.User;
 
 import java.text.ParseException;
@@ -59,6 +56,18 @@ public class UserResource
             return Response.status(Status.FORBIDDEN).build();
         }
 
+    }
+
+    @Path("/{id}/social/{provider}")
+    public Class<? extends SocialAccountResource> getSocialAccount(@PathParam("provider") String provider) {
+        switch (provider) {
+            case "twitter":
+                return SocialAccountResource.TwitterAccountResource.class;
+            case "google":
+                return SocialAccountResource.GoogleAccountResource.class;
+            default:
+                throw new WebApplicationException(Status.NOT_IMPLEMENTED);
+        }
     }
 
 
