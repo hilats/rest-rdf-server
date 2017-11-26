@@ -7,7 +7,9 @@ import com.github.scribejava.core.model.OAuthRequest;
 import com.github.scribejava.core.model.Verb;
 import com.github.scribejava.core.oauth.OAuth10aService;
 import com.hilats.server.spring.jwt.HilatsUser;
+import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.services.AuthProfile;
+import com.hilats.social.GoogleClient;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 
 import javax.annotation.PostConstruct;
@@ -86,6 +88,36 @@ public class SocialAccountResource
             extends SocialAccountResource {
 
         public GoogleAccountResource(@PathParam("id") String userId, @PathParam("provider") String provider) {
+            super(userId, provider);
+        }
+
+        @Override
+        public Response signSocialRequest(String requestString) throws ParseException, InterruptedException, ExecutionException, IOException {
+
+            Map<String,String> googleConf = getApplication().getConfig().authProviders.get("google");
+            AuthProfile authProfile = user.getProviderProfiles().get(provider);
+            Map<String,Object> credentials = authProfile.getCredentials();
+
+            HilatsUserService userService = getApplication().getUserService();
+
+            GoogleClient client = new GoogleClient(
+                    googleConf.get("client_id"),
+                    googleConf.get("client_secret"),
+                    credentials,
+                    newCredentials -> {
+                        authProfile.setCredentials(newCredentials);
+                        userService.saveUser(user);
+                    }
+            );
+
+            return client.signSocialRequest(requestString);
+        }
+    }
+
+    public static class FacebookAccountResource
+            extends SocialAccountResource {
+
+        public FacebookAccountResource(@PathParam("id") String userId, @PathParam("provider") String provider) {
             super(userId, provider);
         }
 

@@ -27,6 +27,10 @@ public abstract class AuthProfile {
         return credentials;
     }
 
+    public void setCredentials(Map<String, Object> credentials) {
+        this.credentials = credentials;
+    }
+
     public Map<String, Object> getUserInfo() {
         return userInfo;
     }

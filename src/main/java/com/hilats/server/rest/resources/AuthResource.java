@@ -33,6 +33,7 @@ import com.github.scribejava.core.oauth.OAuth10aService;
 import com.hilats.server.spring.jwt.*;
 
 import com.hilats.server.spring.jwt.services.*;
+import com.hilats.social.GoogleClient;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.glassfish.jersey.client.JerseyClientBuilder;
 import org.glassfish.jersey.jackson.JacksonFeature;
@@ -228,26 +229,14 @@ public class AuthResource
         if (googleConf == null)
             return Response.serverError().status(Status.BAD_REQUEST).entity("OAuth provider not found: google").build();
 
+        GoogleClient gClient = new GoogleClient(googleConf.get("client_id"), googleConf.get("client_secret"), null, null);
+
         // Step 1. Exchange authorization code for access token.
-        final MultivaluedMap<String, String> accessData = new MultivaluedHashMap<String, String>();
-        accessData.add(CLIENT_ID_KEY, payload.getClientId());
-        accessData.add(REDIRECT_URI_KEY, payload.getRedirectUri());
-        accessData.add(CLIENT_SECRET, googleConf.get("client_secret"));
-        accessData.add(CODE_KEY, payload.getCode());
-        accessData.add(GRANT_TYPE_KEY, AUTH_CODE);
-        response = client.target(accessTokenUrl).request().post(Entity.form(accessData));
-        Map<String, Object> credentials = response.readEntity(Map.class);
-        accessData.clear();
+        Map<String, Object> credentials = gClient.authorize(payload.getRedirectUri(), payload.getCode());
 
 
         // Step 2. Retrieve profile information about the current user.
-        final String accessToken = (String) credentials.get("access_token");
-        response =
-                client.target(peopleApiUrl)
-                      .request("text/plain")
-                      .header("Authorization", String.format("Bearer %s", accessToken))
-                      .get();
-
+        response = gClient.signSocialRequest(peopleApiUrl);
         final Map<String, Object> userInfo = response.readEntity(Map.class);
 
         GoogleProfile profile = new GoogleProfile(

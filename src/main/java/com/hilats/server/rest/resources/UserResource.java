@@ -65,6 +65,8 @@ public class UserResource
                 return SocialAccountResource.TwitterAccountResource.class;
             case "google":
                 return SocialAccountResource.GoogleAccountResource.class;
+            case "facebook":
+                return SocialAccountResource.FacebookAccountResource.class;
             default:
                 return SocialAccountResource.class;
         }
