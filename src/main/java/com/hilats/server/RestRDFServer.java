@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.glassfish.grizzly.http.server.CLStaticHttpHandler;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.grizzly.http.server.NetworkListener;
+import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
 import org.mitre.dsmiley.httpproxy.URITemplateProxyServlet;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.EnumSet;
+import java.util.Map;
 import java.util.logging.Level;
 
 /**
@@ -134,6 +136,14 @@ public class RestRDFServer {
     }
 
     public void configureStaticServer() {
+        if (this.restSpringContext.containsBean("staticFolders")) {
+            Map<String, String> staticFolders = this.restSpringContext.getBean("staticFolders", Map.class);
+            staticFolders.forEach((key,value) -> {
+                this.restServer.getServerConfiguration().addHttpHandler(
+                        new StaticHttpHandler(value), key);
+            });
+        }
+
         // Static content handler
         this.restServer.getServerConfiguration().addHttpHandler(
                 new CLStaticHttpHandler(RestRDFServer.class.getClassLoader(), "/web/"), "/");

@@ -70,4 +70,14 @@ public class ServerHomeDir {
     public File getResource(String path) {
         return new File(getRootDir(), path);
     }
+
+    public File getResource(String path, boolean autocreateDir) {
+        File f = new File(getRootDir(), path);
+
+        if (autocreateDir && !f.exists()) {
+            f.mkdirs();
+        }
+
+        return f;
+    }
 }
