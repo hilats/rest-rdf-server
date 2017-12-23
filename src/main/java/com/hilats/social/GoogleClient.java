@@ -59,7 +59,7 @@ public class GoogleClient {
         credentials = response.readEntity(Map.class);
         credentials.put(
                 "expiration_date",
-                System.currentTimeMillis() + (Long.parseLong((String)credentials.get("expires_in")) * 1000));
+                System.currentTimeMillis() + ((Number)credentials.get("expires_in")).longValue() * 1000);
 
 
         if (credentialsProcessor != null)
