@@ -1,0 +1,19 @@
+{
+
+    "resourcePackages": [
+        "com.hilats.server.rest.resources"
+    ],
+
+    "prettyPrint" : true,
+    "openAPI": {
+        "info": {
+            "version": "1.0",
+            "title": "REST RDF API",
+            "description": "REST access point for Hilats triple store",
+            //"termsOfService": "http://swagger.io/terms/",
+            "contact": {
+                "email": "info@highlatitud.es"
+            }
+        }
+    }
+}

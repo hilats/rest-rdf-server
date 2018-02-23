@@ -6,6 +6,7 @@ import com.hilats.server.rest.resources.JacksonCustomMapperProvider;
 import com.hilats.server.spring.jwt.HilatsUser;
 import com.hilats.server.spring.jwt.HilatsUserService;
 import com.hilats.server.spring.jwt.TokenAuthenticationService;
+import io.swagger.v3.core.util.Json;
 import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.glassfish.jersey.process.internal.RequestScoped;
@@ -64,6 +65,9 @@ public class RdfApplication
         // make sure status>=400 is indeed processed by our exceptionMapper
         property(ServerProperties.RESPONSE_SET_STATUS_OVER_SEND_ERROR, true);
 
+        // make sure swagger accepts comments in JSON config
+        Json.mapper().configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+
         for (Object component: components) register(component);
         this.packages(RdfApplication.class.getPackage().getName()+".rest.resources");
         this.register(ExceptionHandler.class);
@@ -71,6 +75,8 @@ public class RdfApplication
         register(JacksonCustomMapperProvider.class);
         register(CORSResponseFilter.class);
         register(RolesAllowedDynamicFeature.class);
+
+        registerClasses(HilatsOpenApiResource.class);
         //this.register(DBConnectionFilter.class);
         register(new AbstractBinder() {
             @Override
