@@ -193,6 +193,9 @@ public class RestRDFServer {
 
         ServletRegistration reg = proxyCtx.addServlet("ProxyServlet", new HilatsProxyServlet(true));
         reg.setInitParameter("targetUri", "{_uri}");
+        // do not set the x-forward-host header, as this can cause backend to produce wrong response
+        // (use it as base url for linked urls)
+        reg.setInitParameter("forwardip", "false");
         // set agressive timeouts to prevent proxy threads jams
         reg.setInitParameter("httpClient.socketTimeout", "15000");
         reg.setInitParameter("httpClient.connectionTimeout", "4000");
