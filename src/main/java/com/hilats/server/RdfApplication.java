@@ -60,7 +60,7 @@ public class RdfApplication
     protected RdfApplication(TripleStore store, Object... components) {
         this.store = store;
 
-        property(ServerProperties.MEDIA_TYPE_MAPPINGS, "rdf: application/rdf+xml, txt : text/plain, xml : application/xml, json : application/json, jsonld : application/ld+json, ttl : text/turtle");
+        property(ServerProperties.MEDIA_TYPE_MAPPINGS, "rdf: application/rdf+xml, txt : text/plain, xml : application/xml, json : application/json, jsonld : application/ld+json, html : text/html, ttl : text/turtle");
 
         // make sure status>=400 is indeed processed by our exceptionMapper
         property(ServerProperties.RESPONSE_SET_STATUS_OVER_SEND_ERROR, true);
