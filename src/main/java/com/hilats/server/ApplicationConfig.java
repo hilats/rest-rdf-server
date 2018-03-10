@@ -14,6 +14,13 @@ public class ApplicationConfig {
 
     public int publicProxyPort = -1;
     public int proxyPort = -1;
+
+    public int securePort = -1;
+    public int secureProxyPort = -1;
+
+    public String keystorePath = null;
+    public String keystorePass = null;
+
     public String proxyAllowedOrigin = null;
 
     public Map<String, Map<String, String>> authProviders = new HashMap<String, Map<String, String>>();

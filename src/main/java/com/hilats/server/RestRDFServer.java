@@ -9,13 +9,15 @@ import org.glassfish.grizzly.http.server.NetworkListener;
 import org.glassfish.grizzly.http.server.StaticHttpHandler;
 import org.glassfish.grizzly.servlet.ServletRegistration;
 import org.glassfish.grizzly.servlet.WebappContext;
-import org.mitre.dsmiley.httpproxy.URITemplateProxyServlet;
+import org.glassfish.grizzly.ssl.SSLContextConfigurator;
+import org.glassfish.grizzly.ssl.SSLEngineConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 import org.springframework.web.filter.DelegatingFilterProxy;
 
+import javax.net.ssl.SSLContext;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -39,6 +41,7 @@ public class RestRDFServer {
     private HttpServer restServer;
     private HttpServer proxyServer;
     private ApplicationContext restSpringContext;
+    private ApplicationConfig applicationConfig;
 
     public RestRDFServer(URI serverURI) {
         this.serverURI = serverURI;
@@ -62,6 +65,23 @@ public class RestRDFServer {
     public void startServer(URI uri, String[] contextFiles) throws IOException {
         this.configureServer(uri, contextFiles);
         this.restServer.start();
+    }
+
+    private void secureListener(NetworkListener nl) {
+        SSLContextConfigurator sslContextConfig = new SSLContextConfigurator();
+
+        if (applicationConfig.keystorePath == null)
+            throw new IllegalArgumentException("HTTPS requested but no keystore set in config");
+
+        sslContextConfig.setKeyStoreFile(applicationConfig.keystorePath); // contains server cert and key
+        sslContextConfig.setKeyStorePass(applicationConfig.keystorePass);
+
+        // Create context and have exceptions raised if anything wrong with keystore or password
+        SSLContext sslContext = sslContextConfig.createSSLContext(true);
+
+        nl.setSecure(true);
+        // One way authentication
+        nl.setSSLEngineConfig(new SSLEngineConfigurator(sslContext).setClientMode(false).setNeedClientAuth(false));
     }
 
     public void configureServer() throws IOException {
@@ -133,7 +153,20 @@ public class RestRDFServer {
         // this is required to allow url-encoded slashes in IDs
         server.getHttpHandler().setAllowEncodedSlash(true);
 
+        applicationConfig = this.restSpringContext.getBean(RdfApplication.class).getConfig();
+
+        if (applicationConfig.securePort > 0) {
+            final NetworkListener securedListener =
+                    new NetworkListener(
+                            "Proxy",
+                            server.getListener("grizzly").getHost(),
+                            applicationConfig.securePort > 0 ? applicationConfig.securePort : server.getListener("grizzly").getPort()+10);
+            secureListener(securedListener);
+
+            server.addListener(securedListener);
+        }
     }
+
 
     public void configureStaticServer() {
         if (this.restSpringContext.containsBean("staticFolders")) {
@@ -151,7 +184,6 @@ public class RestRDFServer {
 
 
     public void configureProxyServer() throws IOException, URISyntaxException {
-        ApplicationConfig config = this.restSpringContext.getBean(RdfApplication.class).getConfig();
 
         /* Add proxy servlet */
         WebappContext proxyCtx = new WebappContext("Proxy");
@@ -173,8 +205,8 @@ public class RestRDFServer {
                     //((HttpServletResponse) response).setHeader("X-Frame-Options", "ALLOW-FROM "+((HttpServletRequest) request).getHeader("referer"));
                     //((HttpServletResponse) response).setHeader("Content-Security-Policy", "frame-ancestors "+((HttpServletRequest) request).getHeader("referer"));
                 }
-                else if (config.proxyAllowedOrigin != null) {
-                    ((HttpServletResponse) response).setHeader("Access-Control-Allow-Origin", config.proxyAllowedOrigin);
+                else if (applicationConfig.proxyAllowedOrigin != null) {
+                    ((HttpServletResponse) response).setHeader("Access-Control-Allow-Origin", applicationConfig.proxyAllowedOrigin);
                     //((HttpServletResponse) response).setHeader("X-Frame-Options", "ALLOW-FROM "+((HttpServletRequest) request).getHeader("referer"));
                     //((HttpServletResponse) response).setHeader("Content-Security-Policy", "frame-ancestors "+((HttpServletRequest) request).getHeader("referer"));
                 }
@@ -206,10 +238,10 @@ public class RestRDFServer {
         // deploy to server
 
         int port = serverURI.getPort()+1;
-        if (config.proxyPort != -1)
-            port = config.proxyPort;
+        if (applicationConfig.proxyPort != -1)
+            port = applicationConfig.proxyPort;
         else
-            config.proxyPort = port;
+            applicationConfig.proxyPort = port;
 
         if (serverURI.getPort() != port)  {
             URI uri = new URI(serverURI.getScheme(), serverURI.getUserInfo(), serverURI.getHost(), port, serverURI.getPath(), serverURI.getQuery(), serverURI.getFragment());
@@ -220,6 +252,21 @@ public class RestRDFServer {
             this.proxyServer.addListener(listener);
         } else {
             this.proxyServer = this.restServer;
+        }
+
+        if (applicationConfig.securePort > 0) {
+            if (applicationConfig.secureProxyPort > 0 && applicationConfig.securePort != applicationConfig.secureProxyPort)  {
+                final NetworkListener securedProxyListener =
+                        new NetworkListener(
+                                "Proxy",
+                                serverURI.getHost(),
+                                applicationConfig.secureProxyPort);
+                secureListener(securedProxyListener);
+
+                // WARN if securedProxyPort != securedPort, but proxyPort == port THEN secured proxy listener will cover also regular content
+
+                this.proxyServer.addListener(securedProxyListener);
+            }
         }
 
         proxyCtx.deploy(this.proxyServer);
