@@ -108,6 +108,7 @@ public class RdfApplication
         });
     }
 
+    // WARN if this is true, DB gets entirely cleaned even when clicking 'init data' in UI
     public void setCleanOnInit(boolean cleanOnInit) {
         this.cleanOnInit = cleanOnInit;
     }
@@ -147,7 +148,9 @@ public class RdfApplication
             }
         }
 
-        initData();
+        // if store is empty, init data on start
+        if (store.isEmpty())
+            initData();
     }
 
     public void initData() throws Exception {
@@ -155,7 +158,7 @@ public class RdfApplication
             store.clean();
         }
 
-        if (initData != null && store.isEmpty()) {
+        if (initData != null) {
             try {
                 for (Resource res : initData)
                     store.addStatements(res.getInputStream(), initMimeType);
