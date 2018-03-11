@@ -88,7 +88,10 @@ public class HilatsProxyServlet
     protected void copyResponseHeaders(HttpResponse proxyResponse, HttpServletRequest servletRequest,
                                        HttpServletResponse servletResponse) {
         for (Header header : proxyResponse.getAllHeaders()) {
-            if (servletResponse.getHeader(header.getName()) == null)
+            if (servletResponse.getHeader(header.getName()) == null &&
+                // remove X-Frame-Options
+                // TODO should be configurable just like allowedProxyOrigin
+                !"X-Frame-Options".equals(header.getName()))
                 // copy header only if not already set
                 // this can be a problem f.i. for CKAN that sets Allow-Origin header, causing duplicate values
                 copyResponseHeader(servletRequest, servletResponse, header);
