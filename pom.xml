@@ -35,7 +35,7 @@
         <!-- 3.2.3 matches jersey 2.7 spring dep -->
         <spring.version>4.0.4.RELEASE</spring.version>
 
-        <spring.security.version>3.2.3.RELEASE</spring.security.version>
+        <spring.security.version>5.2.10.RELEASE</spring.security.version>
 
         <spring.mongo.version>1.7.2.RELEASE</spring.mongo.version>
     </properties>
