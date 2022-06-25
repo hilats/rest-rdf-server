@@ -37,7 +37,7 @@
 
         <spring.security.version>3.2.3.RELEASE</spring.security.version>
 
-        <spring.mongo.version>1.7.2.RELEASE</spring.mongo.version>
+        <spring.mongo.version>3.3.5</spring.mongo.version>
     </properties>
 
     <dependencyManagement>
